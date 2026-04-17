@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-label="Mug placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#191f1b"/>
+      <stop offset="100%" stop-color="#111613"/>
+    </linearGradient>
+    <linearGradient id="drink" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f4b15f"/>
+      <stop offset="100%" stop-color="#8c542c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect x="238" y="214" width="252" height="194" rx="26" fill="none" stroke="#eef5ea" stroke-opacity=".36" stroke-width="14"/>
+  <rect x="262" y="240" width="200" height="144" rx="18" fill="url(#drink)" fill-opacity=".34"/>
+  <path d="M490 260h50c40 0 56 28 56 56s-16 56-56 56h-50" fill="none" stroke="#eef5ea" stroke-opacity=".36" stroke-width="16" stroke-linecap="round"/>
+  <rect x="320" y="430" width="144" height="18" rx="9" fill="#eef5ea" fill-opacity=".34"/>
+  <path d="M522 214l78-34 18 42-80 34z" fill="#c8f36b" fill-opacity=".16" stroke="#c8f36b" stroke-opacity=".42" stroke-width="8" stroke-linejoin="round"/>
+</svg>

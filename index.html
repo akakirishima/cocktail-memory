@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>カクテル暗記アプリ</title>
+    <meta
+      name="description"
+      content="バイトのカクテルレシピを、注文練習と一覧参照で覚えるための学習アプリ。"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <header class="masthead">
+        <div class="masthead__copy">
+          <p class="eyebrow">BAR MEMORY / 手書きレシピノート</p>
+          <h1>カクテル暗記アプリ</h1>
+          <p class="lede">
+            注文を引いて、材料・量・UP・グラス・作り方をそのまま覚える。
+          </p>
+          <div class="meta-row" id="status-chips" aria-label="学習の概要"></div>
+        </div>
+        <img
+          id="hero-art"
+          class="masthead__art"
+          alt="カクテルの静物画"
+        />
+      </header>
+
+      <section class="band summary" aria-label="学習統計">
+        <div class="stat">
+          <p class="stat__label">出題</p>
+          <p class="stat__value" id="stat-attempts">0</p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">完全一致</p>
+          <p class="stat__value" id="stat-perfects">0</p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">一致率</p>
+          <p class="stat__value" id="stat-accuracy">0%</p>
+        </div>
+        <div class="stat">
+          <p class="stat__label">習得済</p>
+          <p class="stat__value" id="stat-mastered">0</p>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="画面切替">
+        <button id="practice-tab" class="tab" data-tab="practice" aria-selected="true" type="button">
+          練習
+        </button>
+        <button id="library-tab" class="tab" data-tab="library" aria-selected="false" type="button">
+          一覧参照
+        </button>
+      </nav>
+
+      <section id="practice-panel" class="panel is-active" aria-labelledby="practice-tab">
+        <div class="band">
+          <div class="grid-2">
+            <article class="card card--soft stack">
+              <div class="badge-row" id="practice-badges"></div>
+              <h2 class="recipe-title" id="practice-name">注文を選んでください</h2>
+              <p class="recipe-subtitle" id="practice-summary">
+                出題範囲を切り替えて、ランダム注文で練習できます。
+              </p>
+              <div class="badge-row" id="practice-tags"></div>
+              <div class="stack">
+                <div>
+                  <p class="helper">出題範囲</p>
+                  <div class="filter-group" id="practice-source-filters"></div>
+                </div>
+                <p class="helper" id="practice-note"></p>
+              </div>
+              <div class="actions">
+                <button id="next-order" class="button-primary" type="button">次の注文</button>
+                <button id="show-answer" class="button-secondary" type="button">答えを表示</button>
+                <button id="reset-answer" class="button-ghost" type="button">入力を消す</button>
+              </div>
+            </article>
+
+            <form id="answer-form" class="card card--soft stack">
+              <div class="field-grid">
+                <label class="field">
+                  <span>グラス</span>
+                  <select id="answer-glass"></select>
+                </label>
+                <label class="field">
+                  <span>作り方</span>
+                  <select id="answer-method"></select>
+                </label>
+              </div>
+
+              <div class="stack">
+                <div class="badge-row" style="justify-content: space-between">
+                  <p class="helper">材料は1行ずつ入力します。</p>
+                  <button id="add-row" class="button-ghost" type="button">材料行を追加</button>
+                </div>
+                <div id="ingredient-rows" class="practice-rows" aria-live="polite"></div>
+              </div>
+
+              <label class="field">
+                <span>仕上げメモ</span>
+                <textarea
+                  id="answer-notes"
+                  placeholder="赤字の注意、浮かせる、クラッシュなど"
+                ></textarea>
+              </label>
+
+              <div class="actions">
+                <button type="submit" class="button-primary">採点</button>
+                <button id="mark-mastered" type="button" class="button-secondary">覚えた</button>
+              </div>
+
+              <div id="scorebox" class="scorebox" aria-live="polite"></div>
+            </form>
+          </div>
+        </div>
+        <div class="band">
+          <div class="grid-2">
+            <article class="card card--soft stack">
+              <h3 class="card-title">苦手</h3>
+              <div id="weak-list" class="stack"></div>
+            </article>
+            <article class="card card--soft stack">
+              <h3 class="card-title">最近の履歴</h3>
+              <div id="history-list" class="stack"></div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="library-panel" class="panel" aria-labelledby="library-tab">
+        <div class="band stack">
+          <div class="library-toolbar">
+            <label class="field">
+              <span>検索</span>
+              <input id="search-input" type="text" placeholder="例: ジン / 45ml / ソーダ" />
+            </label>
+            <label class="field">
+              <span>ベース</span>
+              <select id="base-filter"></select>
+            </label>
+            <label class="field">
+              <span>出典</span>
+              <select id="source-filter"></select>
+            </label>
+            <div class="field">
+              <span>表示</span>
+              <div class="filter-group" id="scope-filters"></div>
+            </div>
+          </div>
+
+          <div class="library-layout">
+            <div id="recipe-list" class="recipe-list" aria-live="polite"></div>
+            <aside id="recipe-detail" class="card recipe-detail">
+              <h2 class="card-title" id="detail-name">レシピを選択</h2>
+              <p class="helper" id="detail-summary">
+                一覧から1つ選ぶと、材料・注記・出典を見られます。
+              </p>
+              <div id="detail-body" class="detail-list"></div>
+            </aside>
+          </div>
+        </div>
+
+        <div class="band stack">
+          <div class="callout">
+            切れ端メモは参照用に残し、実際に作るレシピとは分けて表示しています。
+          </div>
+          <div class="notes-grid" id="notes-grid"></div>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

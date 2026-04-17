@@ -1,0 +1,24 @@
+{
+  "name": "cocktail-memory",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev",
+    "predev": "npm run generate:catalog",
+    "build": "next build",
+    "prebuild": "npm run generate:catalog",
+    "start": "next start",
+    "generate:catalog": "node scripts/generate-catalog.mjs"
+  },
+  "dependencies": {
+    "next": "^16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "typescript": "^6.0.2"
+  }
+}

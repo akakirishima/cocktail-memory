@@ -1,0 +1,1534 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-04-17T00:15:02.800Z",
+  "recipes": [
+    {
+      "id": "gin-tonic",
+      "name": "ジントニック",
+      "base": "ジンベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ジン",
+          "amount": "45ml"
+        },
+        {
+          "name": "ライム",
+          "amount": "1/8コ"
+        },
+        {
+          "name": "トニック",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "キレがあって爽やか",
+        "ほろ苦く後味が軽い",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "gin-tonic",
+        "alt": "ジントニック の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "gin-rickey",
+      "name": "ジンリッキー",
+      "base": "ジンベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ジン",
+          "amount": "45ml"
+        },
+        {
+          "name": "ライム",
+          "amount": "1/8コ"
+        },
+        {
+          "name": "ソーダ",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "キレがあって爽やか",
+        "炭酸で軽い飲み口",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "gin-rickey",
+        "alt": "ジンリッキー の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "gin-sonic",
+      "name": "ジンソニック",
+      "base": "ジンベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ジン",
+          "amount": "45ml"
+        },
+        {
+          "name": "ライム",
+          "amount": "1/8コ"
+        },
+        {
+          "name": "トニック",
+          "amount": ""
+        },
+        {
+          "name": "ソーダ",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "キレがあって爽やか",
+        "ほろ苦く後味が軽い",
+        "炭酸で軽い飲み口"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "gin-sonic",
+        "alt": "ジンソニック の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "vodka-tonic",
+      "name": "ウォッカトニック",
+      "base": "ウォッカベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウォッカ",
+          "amount": "30ml"
+        },
+        {
+          "name": "ライム",
+          "amount": "1/8コ"
+        },
+        {
+          "name": "トニック",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "クセが少なくすっきり",
+        "ほろ苦く後味が軽い",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "vodka-tonic",
+        "alt": "ウォッカトニック の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "vodka-rickey",
+      "name": "ウォッカリッキー",
+      "base": "ウォッカベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウォッカ",
+          "amount": "45ml"
+        },
+        {
+          "name": "ライム",
+          "amount": "1/8コ"
+        },
+        {
+          "name": "ソーダ",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "クセが少なくすっきり",
+        "炭酸で軽い飲み口",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "vodka-rickey",
+        "alt": "ウォッカリッキー の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "black-russian",
+      "name": "ブラックルシアン",
+      "base": "ウォッカベース",
+      "glass": "小さいロックグラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウォッカ",
+          "amount": "30ml"
+        },
+        {
+          "name": "カルーア",
+          "amount": "30ml"
+        }
+      ],
+      "notes": [
+        "赤字: 小さいロックグラス"
+      ],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "クセが少なくすっきり",
+        "まろやかでデザート感がある"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "black-russian",
+        "alt": "ブラックルシアン の画像スロット",
+        "placeholderSrc": "/placeholders/rocks-glass.svg"
+      }
+    },
+    {
+      "id": "salty-dog",
+      "name": "ソルティドッグ",
+      "base": "ウォッカベース",
+      "glass": "スノースタイルショートグラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウォッカ",
+          "amount": "45ml"
+        },
+        {
+          "name": "グレフル",
+          "amount": "60ml"
+        },
+        {
+          "name": "塩",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "クセが少なくすっきり",
+        "ほろ苦くさっぱり"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "salty-dog",
+        "alt": "ソルティドッグ の画像スロット",
+        "placeholderSrc": "/placeholders/snow-glass.svg"
+      }
+    },
+    {
+      "id": "bulldog",
+      "name": "ブルドック",
+      "base": "ウォッカベース",
+      "glass": "ショートグラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウォッカ",
+          "amount": "45ml"
+        },
+        {
+          "name": "グレフルジュース",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "クセが少なくすっきり",
+        "ほろ苦くさっぱり"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "bulldog",
+        "alt": "ブルドック の画像スロット",
+        "placeholderSrc": "/placeholders/short-glass.svg"
+      }
+    },
+    {
+      "id": "boston-cooler",
+      "name": "ボストンクーラー",
+      "base": "ラムベース",
+      "glass": "ロンググラス",
+      "method": "シェイク",
+      "ingredients": [
+        {
+          "name": "ラム",
+          "amount": "30ml"
+        },
+        {
+          "name": "レモン果汁",
+          "amount": "10ml"
+        },
+        {
+          "name": "砂糖",
+          "amount": "1tsp"
+        },
+        {
+          "name": "ジンジャーエール",
+          "amount": "UP"
+        },
+        {
+          "name": "レモン",
+          "amount": "1カット"
+        }
+      ],
+      "notes": [
+        "赤字: (シェイク)",
+        "赤字の訂正でラム45mlは消されている"
+      ],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘い香りとコクがある",
+        "酸味が立って締まる",
+        "口当たりがなめらか"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "boston-cooler",
+        "alt": "ボストンクーラー の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "cuba-libre",
+      "name": "キューバリバー",
+      "base": "ラムベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ラム",
+          "amount": "30ml"
+        },
+        {
+          "name": "ライム",
+          "amount": "1/8コ"
+        },
+        {
+          "name": "コーラ",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘い香りとコクがある",
+        "甘みとコクが出る",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "cuba-libre",
+        "alt": "キューバリバー の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "highball",
+      "name": "ハイボール",
+      "base": "ウイスキーベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウイスキー",
+          "amount": "30ml"
+        },
+        {
+          "name": "ソーダ",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "香ばしくコクがある",
+        "炭酸で軽い飲み口"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "highball",
+        "alt": "ハイボール の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "whisky-coke",
+      "name": "ウイスキーコーク",
+      "base": "ウイスキーベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウイスキー",
+          "amount": "30ml"
+        },
+        {
+          "name": "コーラ",
+          "amount": "UP"
+        },
+        {
+          "name": "ライム",
+          "amount": "1カット"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "香ばしくコクがある",
+        "甘みとコクが出る",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "whisky-coke",
+        "alt": "ウイスキーコーク の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "john-collins",
+      "name": "ジョンコリンズ",
+      "base": "ウイスキーベース",
+      "glass": "ロンググラス",
+      "method": "シェイク",
+      "ingredients": [
+        {
+          "name": "ウイスキー",
+          "amount": "30ml"
+        },
+        {
+          "name": "レモン果汁",
+          "amount": "10ml"
+        },
+        {
+          "name": "砂糖",
+          "amount": "1tsp"
+        },
+        {
+          "name": "ソーダ",
+          "amount": "UP"
+        },
+        {
+          "name": "レモン",
+          "amount": "1カット"
+        }
+      ],
+      "notes": [
+        "赤字: (シェイク)"
+      ],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "香ばしくコクがある",
+        "炭酸で軽い飲み口",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "john-collins",
+        "alt": "ジョンコリンズ の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "diablo",
+      "name": "ディアブロ 11%",
+      "base": "テキーラベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "テキーラ",
+          "amount": "45ml"
+        },
+        {
+          "name": "カシス",
+          "amount": "15ml"
+        },
+        {
+          "name": "レモン汁",
+          "amount": "10ml"
+        },
+        {
+          "name": "ジンジャーエール",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "パンチがあって個性が強い",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "diablo",
+        "alt": "ディアブロ 11% の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "tequila-sunrise",
+      "name": "テキーラ サンライズ",
+      "base": "テキーラベース",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "テキーラ",
+          "amount": "30ml"
+        },
+        {
+          "name": "グレナデンシロップ",
+          "amount": "10ml"
+        },
+        {
+          "name": "オレンジジュース",
+          "amount": ""
+        }
+      ],
+      "notes": [
+        "作り方が異なるので、作る前に確認する!"
+      ],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "パンチがあって個性が強い",
+        "果実味が強い",
+        "甘酸っぱく華やか"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "tequila-sunrise",
+        "alt": "テキーラ サンライズ の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "brave-bull",
+      "name": "ブレイブブル",
+      "base": "テキーラベース",
+      "glass": "小さいロックグラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "テキーラ",
+          "amount": "30ml"
+        },
+        {
+          "name": "カルーア",
+          "amount": "30ml"
+        }
+      ],
+      "notes": [
+        "赤字: 小さいロックグラス"
+      ],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "パンチがあって個性が強い",
+        "まろやかでデザート感がある"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "brave-bull",
+        "alt": "ブレイブブル の画像スロット",
+        "placeholderSrc": "/placeholders/rocks-glass.svg"
+      }
+    },
+    {
+      "id": "kitty",
+      "name": "キティ",
+      "base": "ワインベース",
+      "glass": "ワイングラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "赤ワイン",
+          "amount": "60ml"
+        },
+        {
+          "name": "ジンジャーエール",
+          "amount": "60ml"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "軽やかでフルーティー"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "kitty",
+        "alt": "キティ の画像スロット",
+        "placeholderSrc": "/placeholders/wine-glass.svg"
+      }
+    },
+    {
+      "id": "calimocho",
+      "name": "カリモーチョ",
+      "base": "ワインベース",
+      "glass": "ワイングラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ワイン(赤)",
+          "amount": "60ml"
+        },
+        {
+          "name": "コーラ",
+          "amount": ""
+        },
+        {
+          "name": "レモンスライス",
+          "amount": "1枚"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "軽やかでフルーティー",
+        "甘みとコクが出る",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "calimocho",
+        "alt": "カリモーチョ の画像スロット",
+        "placeholderSrc": "/placeholders/wine-glass.svg"
+      }
+    },
+    {
+      "id": "wine-cooler",
+      "name": "ワインクーラー",
+      "base": "ワインベース",
+      "glass": "",
+      "method": "シェイク",
+      "ingredients": [
+        {
+          "name": "オレンジジュース",
+          "amount": "30ml"
+        },
+        {
+          "name": "ホワイトキュラソー",
+          "amount": "10ml"
+        },
+        {
+          "name": "グレナデンシロップ",
+          "amount": "15ml"
+        },
+        {
+          "name": "ワイン",
+          "amount": "90ml"
+        }
+      ],
+      "notes": [
+        "赤字: (シェイク) (クラッシュ)",
+        "赤字: ↑赤も白も可。"
+      ],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "軽やかでフルーティー",
+        "果実味が強い",
+        "甘酸っぱく華やか"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "wine-cooler",
+        "alt": "ワインクーラー の画像スロット",
+        "placeholderSrc": "/placeholders/generic.svg"
+      }
+    },
+    {
+      "id": "americano",
+      "name": "アメリカーノ",
+      "base": "ワインベース",
+      "glass": "",
+      "method": "フロート",
+      "ingredients": [
+        {
+          "name": "レモン果汁",
+          "amount": "30ml"
+        },
+        {
+          "name": "砂糖",
+          "amount": "木のスプーン2杯"
+        },
+        {
+          "name": "水",
+          "amount": "6割"
+        },
+        {
+          "name": "赤ワイン",
+          "amount": "うかせる"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "軽やかでフルーティー",
+        "酸味が立って締まる",
+        "色の層がきれい"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "americano",
+        "alt": "アメリカーノ の画像スロット",
+        "placeholderSrc": "/placeholders/generic.svg"
+      }
+    },
+    {
+      "id": "campari-soda",
+      "name": "カンパリソーダ",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "カンパリ",
+          "amount": "40ml"
+        },
+        {
+          "name": "ソーダ",
+          "amount": "UP"
+        },
+        {
+          "name": "レモン",
+          "amount": "1カット"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "炭酸で軽い飲み口",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "campari-soda",
+        "alt": "カンパリソーダ の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "spumoni",
+      "name": "スプモーニ",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "カンパリ",
+          "amount": "30ml"
+        },
+        {
+          "name": "グレフルジュース",
+          "amount": "45ml"
+        },
+        {
+          "name": "トニックウォーター",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "ほろ苦く後味が軽い",
+        "ほろ苦くさっぱり"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "spumoni",
+        "alt": "スプモーニ の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "cassis-soda",
+      "name": "カシス ソーダ",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "カシス",
+          "amount": "45ml"
+        },
+        {
+          "name": "ソーダ",
+          "amount": ""
+        },
+        {
+          "name": "レモンスライス",
+          "amount": "1枚"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "炭酸で軽い飲み口",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "cassis-soda",
+        "alt": "カシス ソーダ の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "cassis-orange",
+      "name": "カシス オレンジ",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "カシスリキュール",
+          "amount": "30ml"
+        },
+        {
+          "name": "オレンジジュース",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "果実味が強い"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "cassis-orange",
+        "alt": "カシス オレンジ の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "kahlua-milk",
+      "name": "カルーア ミルク",
+      "base": "リキュールベース等",
+      "glass": "マグカップ",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "カルーア",
+          "amount": "30ml"
+        },
+        {
+          "name": "ミルク",
+          "amount": ""
+        },
+        {
+          "name": "コーヒー(アイス)",
+          "amount": "少々"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "まろやかでデザート感がある",
+        "コーヒーの香りが出る"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "kahlua-milk",
+        "alt": "カルーア ミルク の画像スロット",
+        "placeholderSrc": "/placeholders/mug.svg"
+      }
+    },
+    {
+      "id": "peach-oolong",
+      "name": "ピーチウーロン",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ピーチ",
+          "amount": "40ml"
+        },
+        {
+          "name": "ウーロン",
+          "amount": "UP"
+        },
+        {
+          "name": "レモンスライス",
+          "amount": "1ケ"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "peach-oolong",
+        "alt": "ピーチウーロン の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "fuzzy-navel",
+      "name": "ファジーネーブル",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ピーチツリー",
+          "amount": "30ml"
+        },
+        {
+          "name": "オレンジジュース",
+          "amount": ""
+        }
+      ],
+      "notes": [
+        "赤字: 40は訂正で消されている"
+      ],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "果実味が強い"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "fuzzy-navel",
+        "alt": "ファジーネーブル の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "dita-soda",
+      "name": "ディタソーダ",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ディタ",
+          "amount": "40ml"
+        },
+        {
+          "name": "ソーダ",
+          "amount": "UP"
+        },
+        {
+          "name": "レモン",
+          "amount": "1カット"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "炭酸で軽い飲み口",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "dita-soda",
+        "alt": "ディタソーダ の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "dita-orange",
+      "name": "ディタオレンジ",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ディタ",
+          "amount": "40ml"
+        },
+        {
+          "name": "オレンジジュース",
+          "amount": "UP"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "果実味が強い"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "dita-orange",
+        "alt": "ディタオレンジ の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "dita-tonic",
+      "name": "ディタトニック",
+      "base": "リキュールベース等",
+      "glass": "",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ディタ",
+          "amount": "40ml"
+        },
+        {
+          "name": "ライム",
+          "amount": "1/8コ"
+        },
+        {
+          "name": "トニック",
+          "amount": "UP"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "ほろ苦く後味が軽い",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "dita-tonic",
+        "alt": "ディタトニック の画像スロット",
+        "placeholderSrc": "/placeholders/generic.svg"
+      }
+    },
+    {
+      "id": "china-blue",
+      "name": "チャイナブルー",
+      "base": "リキュールベース等",
+      "glass": "ロンググラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ディタ",
+          "amount": "20ml"
+        },
+        {
+          "name": "ブルーキュラソー",
+          "amount": "15ml"
+        },
+        {
+          "name": "ホワイトグレフル",
+          "amount": "40ml"
+        },
+        {
+          "name": "トニック",
+          "amount": "UP"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "main",
+          "label": "メインのレシピノート"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "ほろ苦く後味が軽い",
+        "ほろ苦くさっぱり"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "china-blue",
+        "alt": "チャイナブルー の画像スロット",
+        "placeholderSrc": "/placeholders/long-glass.svg"
+      }
+    },
+    {
+      "id": "cointreau-tonic",
+      "name": "コアントロートニック",
+      "base": "リキュールベース等",
+      "glass": "グラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "コアントロー",
+          "amount": "30ml"
+        },
+        {
+          "name": "トニック",
+          "amount": "UP"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "fragment",
+          "label": "切れ端メモ 2"
+        },
+        {
+          "type": "menu",
+          "label": "カクテルメニュー"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "ほろ苦く後味が軽い"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "cointreau-tonic",
+        "alt": "コアントロートニック の画像スロット",
+        "placeholderSrc": "/placeholders/tumbler.svg"
+      }
+    },
+    {
+      "id": "screwdriver",
+      "name": "スクリュードライバー",
+      "base": "リキュールベース等",
+      "glass": "グラス",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウォッカ",
+          "amount": "30ml"
+        },
+        {
+          "name": "オレンジジュース",
+          "amount": "UP"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "menu",
+          "label": "カクテルメニュー"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "果実味が強い"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "screwdriver",
+        "alt": "スクリュードライバー の画像スロット",
+        "placeholderSrc": "/placeholders/tumbler.svg"
+      }
+    },
+    {
+      "id": "apricot-soda",
+      "name": "アプリコットソーダ",
+      "base": "リキュールベース等",
+      "glass": "",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "プルシア",
+          "amount": "40ml"
+        },
+        {
+          "name": "ソーダ",
+          "amount": "UP"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "fragment",
+          "label": "切れ端メモ 1"
+        },
+        {
+          "type": "menu",
+          "label": "カクテルメニュー"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "炭酸で軽い飲み口"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "apricot-soda",
+        "alt": "アプリコットソーダ の画像スロット",
+        "placeholderSrc": "/placeholders/generic.svg"
+      }
+    },
+    {
+      "id": "sol-cubano",
+      "name": "ソルクバーノ",
+      "base": "リキュールベース等",
+      "glass": "",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ラム",
+          "amount": "30ml"
+        },
+        {
+          "name": "グレフルジュース",
+          "amount": "60ml"
+        },
+        {
+          "name": "トニック",
+          "amount": ""
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "fragment",
+          "label": "切れ端メモ 4"
+        },
+        {
+          "type": "menu",
+          "label": "カクテルメニュー"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "ほろ苦く後味が軽い",
+        "ほろ苦くさっぱり"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "sol-cubano",
+        "alt": "ソルクバーノ の画像スロット",
+        "placeholderSrc": "/placeholders/generic.svg"
+      }
+    },
+    {
+      "id": "moscow-mule",
+      "name": "モスコミュール",
+      "base": "リキュールベース等",
+      "glass": "",
+      "method": "ビルド",
+      "ingredients": [
+        {
+          "name": "ウォッカ",
+          "amount": "30ml"
+        },
+        {
+          "name": "ライム",
+          "amount": "1/8コ"
+        },
+        {
+          "name": "ジンジャーエール",
+          "amount": "UP"
+        }
+      ],
+      "notes": [],
+      "sources": [
+        {
+          "type": "fragment",
+          "label": "切れ端メモ 7"
+        },
+        {
+          "type": "menu",
+          "label": "カクテルメニュー"
+        }
+      ],
+      "practice": true,
+      "characteristics": [
+        "甘めで飲みやすい",
+        "酸味が立って締まる"
+      ],
+      "image": {
+        "kind": "placeholder",
+        "assetName": "moscow-mule",
+        "alt": "モスコミュール の画像スロット",
+        "placeholderSrc": "/placeholders/generic.svg"
+      }
+    }
+  ],
+  "notePages": [
+    {
+      "title": "切れ端メモ 1",
+      "kind": "fragment",
+      "lines": [
+        "アプリコットソーダ",
+        "☆プルシア 40ml",
+        "☆ソーダ UP"
+      ]
+    },
+    {
+      "title": "切れ端メモ 2",
+      "kind": "fragment",
+      "lines": [
+        "コアントロートニック",
+        "〜コアントロー 30M",
+        "〜トニック"
+      ]
+    },
+    {
+      "title": "切れ端メモ 3",
+      "kind": "stockout",
+      "columns": [
+        [
+          "コーヒー(冷) ×",
+          "コーヒー(温) ×",
+          "ティ(冷) ×",
+          "アール(温) ×",
+          "ジャス(冷) ×"
+        ],
+        [
+          "ピーチウーロン ×",
+          "カシス ×",
+          "カルーア ×",
+          "キウイ ×",
+          "ジンジャーエ ×",
+          "カルーア ×"
+        ]
+      ]
+    },
+    {
+      "title": "切れ端メモ 4",
+      "kind": "fragment",
+      "lines": [
+        "ソルクバーノ",
+        "*ラム ── 30ml",
+        "*グレフルジュース ── 60ml",
+        "*トニック"
+      ]
+    },
+    {
+      "title": "切れ端メモ 5",
+      "kind": "partial",
+      "lines": [
+        "*グレフルジュース 45ml"
+      ]
+    },
+    {
+      "title": "切れ端メモ 6",
+      "kind": "partial",
+      "lines": [
+        "（上部見切れ）パッション…",
+        "パッソア 30ml",
+        "オレンジ 50/50",
+        "パイン 50/50",
+        "（赤字で丸囲み）ロック",
+        "（赤字）(シェイク)"
+      ]
+    },
+    {
+      "title": "切れ端メモ 7",
+      "kind": "fragment",
+      "lines": [
+        "モスコミュール",
+        "☆ウォッカ 30ml",
+        "☆ライム 1/8コ",
+        "☆ジンジャーエール UP"
+      ]
+    }
+  ]
+}
