@@ -109,11 +109,20 @@ type Feedback = {
   result: AttemptResult;
 };
 
+type ChallengePhase = "ready" | "playing" | "graded";
+
 const STORAGE_KEY = "cocktail-memory-v2";
+const CHALLENGE_TIME_LIMIT = 90;
 const DATE_FORMAT = new Intl.DateTimeFormat("ja-JP", {
   dateStyle: "short",
   timeStyle: "short",
 });
+
+function formatChallengeTime(seconds: number) {
+  const safeSeconds = Math.max(0, seconds);
+  const minutes = Math.floor(safeSeconds / 60);
+  return `${minutes}:${String(safeSeconds % 60).padStart(2, "0")}`;
+}
 
 function firstIncompleteRowIndex(draft: PracticeDraft) {
   const index = draft.rows.findIndex((row) => !row.ingredientId || !row.quantityId);
@@ -485,6 +494,11 @@ export default function CocktailStudyApp() {
   const [draggingChoice, setDraggingChoice] = useState<IngredientChoice | null>(null);
   const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
   const [quantityPromptRowIndex, setQuantityPromptRowIndex] = useState<number | null>(null);
+  const [challengePhase, setChallengePhase] = useState<ChallengePhase>("ready");
+  const [challengeStartedAt, setChallengeStartedAt] = useState<number | null>(null);
+  const [timeLeft, setTimeLeft] = useState(CHALLENGE_TIME_LIMIT);
+  const [streak, setStreak] = useState(0);
+  const [comboMessage, setComboMessage] = useState<string | null>(null);
   const mixingGlassRef = useRef<HTMLDivElement | null>(null);
   const suppressNextIngredientClickRef = useRef(false);
   const dragStartRef = useRef<{
@@ -506,6 +520,23 @@ export default function CocktailStudyApp() {
     saveState(state);
   }, [hydrated, state]);
 
+  useEffect(() => {
+    if (challengePhase !== "playing" || !challengeStartedAt) {
+      return;
+    }
+
+    const startedAt = challengeStartedAt;
+
+    function syncTimer() {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      setTimeLeft(Math.max(0, CHALLENGE_TIME_LIMIT - elapsed));
+    }
+
+    syncTimer();
+    const timerId = window.setInterval(syncTimer, 1000);
+    return () => window.clearInterval(timerId);
+  }, [challengePhase, challengeStartedAt]);
+
   const activeDeck = useMemo(
     () =>
       catalog.recipes.filter(
@@ -521,6 +552,7 @@ export default function CocktailStudyApp() {
     if (!activeDeck.length) {
       setFeedback(null);
       setAnswerVisible(false);
+      resetChallenge();
       return;
     }
 
@@ -545,6 +577,7 @@ export default function CocktailStudyApp() {
 
     setFeedback(null);
     setAnswerVisible(false);
+    resetChallenge();
   }, [activeDeck, hydrated]);
 
   const currentRecipe = useMemo(() => {
@@ -562,6 +595,7 @@ export default function CocktailStudyApp() {
     if (!currentDraft) {
       setActiveRowIndex(0);
       setQuantityPromptRowIndex(null);
+      resetChallenge();
       return;
     }
 
@@ -570,6 +604,7 @@ export default function CocktailStudyApp() {
     setDraggingChoice(null);
     setDragPoint(null);
     dragStartRef.current = null;
+    resetChallenge();
   }, [currentRecipe?.id]);
 
   useEffect(() => {
@@ -603,6 +638,24 @@ export default function CocktailStudyApp() {
 
   const history = state.stats.history.slice(0, 8);
 
+  function resetChallenge() {
+    setChallengePhase("ready");
+    setChallengeStartedAt(null);
+    setTimeLeft(CHALLENGE_TIME_LIMIT);
+    setComboMessage(null);
+  }
+
+  function startChallenge() {
+    if (challengePhase !== "playing") {
+      setChallengePhase("playing");
+      setChallengeStartedAt(Date.now());
+      setTimeLeft(CHALLENGE_TIME_LIMIT);
+    }
+
+    setComboMessage(null);
+    setAnswerVisible(false);
+  }
+
   function persistDraft(recipe: Recipe, nextDraft: PracticeDraft) {
     setState((previous) => ({
       ...previous,
@@ -620,6 +673,7 @@ export default function CocktailStudyApp() {
   }
 
   function updateField(recipe: Recipe, field: keyof Omit<PracticeDraft, "rows">, value: string) {
+    startChallenge();
     updateCurrentDraft(recipe, (draft) => ({
       ...draft,
       [field]: value,
@@ -627,6 +681,7 @@ export default function CocktailStudyApp() {
   }
 
   function updateRow(recipe: Recipe, index: number, field: keyof PracticeRow, value: string) {
+    startChallenge();
     updateCurrentDraft(recipe, (draft) => ({
       ...draft,
       rows: draft.rows.map((row, rowIndex) =>
@@ -678,6 +733,8 @@ export default function CocktailStudyApp() {
       return;
     }
 
+    startChallenge();
+
     const index =
       typeof targetIndex === "number"
         ? Math.max(0, Math.min(targetIndex, draft.rows.length - 1))
@@ -695,13 +752,15 @@ export default function CocktailStudyApp() {
     persistDraft(recipe, nextDraft);
   }
 
-  function chooseQuantity(recipe: Recipe, quantityId: string) {
+  function chooseQuantity(recipe: Recipe, quantityId: string, targetIndex?: number) {
     const draft = normalizeDraftForRecipe(recipe, state.drafts[recipe.id]);
     if (!draft.rows.length) {
       return;
     }
 
-    const requestedIndex = quantityPromptRowIndex ?? activeRowIndex;
+    startChallenge();
+
+    const requestedIndex = typeof targetIndex === "number" ? targetIndex : quantityPromptRowIndex ?? activeRowIndex;
     const index = Math.max(0, Math.min(requestedIndex, draft.rows.length - 1));
     const nextRows = draft.rows.map((row, rowIndex) =>
       rowIndex === index ? { ...row, quantityId } : row
@@ -786,6 +845,11 @@ export default function CocktailStudyApp() {
     clearDragging(event.pointerId, event.currentTarget);
   }
 
+  function handleChallengeStart() {
+    setFeedback(null);
+    startChallenge();
+  }
+
   function selectNextRecipe(forceDifferent = true) {
     if (!activeDeck.length) return;
     const next =
@@ -799,6 +863,7 @@ export default function CocktailStudyApp() {
     }));
     setFeedback(null);
     setAnswerVisible(false);
+    resetChallenge();
   }
 
   function togglePracticeSource(source: SourceType) {
@@ -881,9 +946,24 @@ export default function CocktailStudyApp() {
     if (!currentRecipe || !currentDraft) return;
 
     const result = gradeAttempt(currentRecipe, currentDraft);
+    const speedLabel =
+      timeLeft >= 60 ? "FAST" : timeLeft >= 30 ? "PERFECT" : timeLeft > 0 ? "CLEAR" : "TIME-UP CLEAR";
     updateStats(currentRecipe, result);
     setFeedback({ recipeId: currentRecipe.id, result });
     setAnswerVisible(true);
+    setChallengePhase("graded");
+    setChallengeStartedAt(null);
+
+    if (result.perfect) {
+      setStreak((previous) => {
+        const next = previous + 1;
+        setComboMessage(next >= 2 ? `${speedLabel} / ${next} COMBO` : speedLabel);
+        return next;
+      });
+    } else {
+      setStreak(0);
+      setComboMessage("CHECK AGAIN");
+    }
   }
 
   function handleShowAnswer() {
@@ -898,6 +978,7 @@ export default function CocktailStudyApp() {
     }));
     setFeedback(null);
     setAnswerVisible(false);
+    resetChallenge();
   }
 
   function renderResultPanel(recipe: Recipe, _draft: PracticeDraft) {
@@ -1060,49 +1141,71 @@ export default function CocktailStudyApp() {
       quantityId: "",
     };
     const activeIngredientChoice = ingredientChoiceById.get(activeRow.ingredientId) || null;
-    const quantityRowIndex = Math.max(
-      0,
-      Math.min(quantityPromptRowIndex ?? activeRowIndex, currentDraft.rows.length - 1)
-    );
-    const quantityRow = currentDraft.rows[quantityRowIndex] || activeRow;
-    const quantityIngredient = ingredientChoiceById.get(quantityRow.ingredientId) || null;
     const completedRows = currentDraft.rows.filter((row) => row.ingredientId && row.quantityId).length;
     const nextEmptyIngredientIndex = currentDraft.rows.findIndex((row) => !row.ingredientId);
+    const graded = feedback?.recipeId === currentRecipe.id ? feedback.result : null;
+    const phaseLabel =
+      challengePhase === "ready" ? "注文待ち" : challengePhase === "playing" ? "調製中" : "採点済";
+    const challengeButtonLabel =
+      challengePhase === "ready" ? "開始" : challengePhase === "playing" ? "進行中" : "再挑戦";
+    const timerPercent = Math.max(0, Math.min(100, (timeLeft / CHALLENGE_TIME_LIMIT) * 100));
+    const timerTone = timeLeft <= 10 ? "is-critical" : timeLeft <= 30 ? "is-warning" : "";
+    const challengeTone = graded ? (graded.perfect ? "is-perfect" : "is-miss") : "";
 
     function renderPourSlot(row: PracticeRow, index: number) {
       const ingredientChoice = ingredientChoiceById.get(row.ingredientId) || null;
       const quantityChoice = quantityOptions.find((choice) => choice.id === row.quantityId) || null;
       const isActive = index === activeRowIndex;
       const needsQuantity = quantityPromptRowIndex === index && !!ingredientChoice && !quantityChoice;
+      const showQuantityChoices = !!ingredientChoice && (isActive || needsQuantity || !quantityChoice);
 
       return (
-        <button
+        <article
           key={`${currentRecipe.id}-pour-${index}`}
-          type="button"
           className={`mix-slot ${isActive ? "is-active" : ""} ${needsQuantity ? "needs-quantity" : ""}`.trim()}
-          onClick={() => {
-            setActiveRowIndex(index);
-            setQuantityPromptRowIndex(ingredientChoice ? index : null);
-          }}
         >
-          <span className="mix-slot__number">{index + 1}</span>
-          <span className="mix-slot__media">
-            {ingredientChoice?.visual ? (
-              <ChoiceMedia
-                visual={ingredientChoice.visual}
-                alt={ingredientChoice.label}
-                className="mix-slot__image"
-                sizes="64px"
-              />
-            ) : (
-              <span className="mix-slot__empty">+</span>
-            )}
-          </span>
-          <span className="mix-slot__body">
-            <strong>{ingredientChoice?.label || "材料を入れる"}</strong>
-            <span>{quantityChoice?.label || "未選択"}</span>
-          </span>
-        </button>
+          <button
+            type="button"
+            className="mix-slot__surface"
+            aria-pressed={isActive}
+            onClick={() => {
+              setActiveRowIndex(index);
+              setQuantityPromptRowIndex(ingredientChoice ? index : null);
+            }}
+          >
+            <span className="mix-slot__number">{index + 1}</span>
+            <span className="mix-slot__media">
+              {ingredientChoice?.visual ? (
+                <ChoiceMedia
+                  visual={ingredientChoice.visual}
+                  alt={ingredientChoice.label}
+                  className="mix-slot__image"
+                  sizes="64px"
+                />
+              ) : (
+                <span className="mix-slot__empty">+</span>
+              )}
+            </span>
+            <span className="mix-slot__body">
+              <strong>{ingredientChoice?.label || "材料を入れる"}</strong>
+              <span>{quantityChoice?.label || "量を選択"}</span>
+            </span>
+          </button>
+
+          {showQuantityChoices ? (
+            <div className="mix-slot__quantities" aria-label={`行 ${index + 1} の量を選ぶ`}>
+              {quantityOptions.map((choice) => (
+                <ChoiceChip
+                  key={choice.id || "blank"}
+                  label={choice.label}
+                  active={quantityChoice?.id === choice.id}
+                  onClick={() => chooseQuantity(currentRecipe, choice.id, index)}
+                  className="choice-chip--quantity mix-slot__quantity-chip"
+                />
+              ))}
+            </div>
+          ) : null}
+        </article>
       );
     }
 
@@ -1170,37 +1273,60 @@ export default function CocktailStudyApp() {
       <section className="band">
         <div className="band__inner band__inner--practice">
           <div className="surface surface--main">
-            <div className="surface__header">
-              <div>
-                <p className="eyebrow">練習</p>
+            <div className={`challenge-card ${challengePhase === "playing" ? "is-playing" : ""} ${challengeTone}`.trim()}>
+              <div className="challenge-card__copy">
+                <p className="eyebrow">ORDER CHALLENGE</p>
                 <h2>{currentRecipe.name}</h2>
                 <p className="surface__summary">
                   {currentRecipe.base} / {currentRecipe.ingredients.length}行 / 一致 {recipeCoverage(state, currentRecipe.id)}
                 </p>
+                <div className="badge-row">
+                  {sourceChips.map((text) => (
+                    <span className="badge" key={text}>
+                      {text}
+                    </span>
+                  ))}
+                  {state.mastered[currentRecipe.id] ? (
+                    <span className="badge badge--green">習得済</span>
+                  ) : (
+                    <span className="badge">未習得</span>
+                  )}
+                  <span className="badge badge--amber">{currentRecipe.base}</span>
+                </div>
+                <p className="helper">
+                  {currentRecipe.notes.length ? currentRecipe.notes.join(" / ") : "注記はありません。"}
+                </p>
               </div>
-              <div className="badge-row">
-                {state.mastered[currentRecipe.id] ? (
-                  <span className="badge badge--green">習得済</span>
-                ) : (
-                  <span className="badge">未習得</span>
-                )}
-                <span className="badge">{currentRecipe.glass || "グラス未記載"}</span>
-                <span className="badge">{currentRecipe.method}</span>
-              </div>
-            </div>
 
-            <div className="practice-context">
-              <div className="badge-row">
-                {sourceChips.map((text) => (
-                  <span className="badge" key={text}>
-                    {text}
+              <div className="challenge-hud" aria-label="注文チャレンジ状況">
+                <article className={`hud-tile hud-tile--timer ${timerTone}`.trim()}>
+                  <span>TIME</span>
+                  <strong>{formatChallengeTime(timeLeft)}</strong>
+                  <span className="timer-bar" aria-hidden="true">
+                    <span style={{ width: `${timerPercent}%` }} />
                   </span>
-                ))}
-                <span className="badge badge--amber">{currentRecipe.base}</span>
+                </article>
+                <article className="hud-tile">
+                  <span>STREAK</span>
+                  <strong>{streak}</strong>
+                </article>
+                <article className="hud-tile">
+                  <span>TABLE</span>
+                  <strong>
+                    {completedRows}/{currentRecipe.ingredients.length}
+                  </strong>
+                </article>
+                <article className="hud-tile">
+                  <span>STATUS</span>
+                  <strong>{phaseLabel}</strong>
+                </article>
               </div>
-              <p className="helper">
-                {currentRecipe.notes.length ? currentRecipe.notes.join(" / ") : "注記はありません。"}
-              </p>
+
+              {comboMessage ? (
+                <div className="combo-pop" role="status" aria-live="polite">
+                  {comboMessage}
+                </div>
+              ) : null}
             </div>
 
             <form className="practice-form practice-form--mixing" onSubmit={handleSubmit}>
@@ -1227,7 +1353,7 @@ export default function CocktailStudyApp() {
                 <div className="mixing-layout">
                   <section
                     ref={mixingGlassRef}
-                    className={`mixing-glass-zone ${draggingChoice ? "is-ready" : ""}`.trim()}
+                    className={`mixing-glass-zone ${draggingChoice ? "is-ready" : ""} ${challengeTone}`.trim()}
                     aria-label="材料を並べるテーブル"
                   >
                     <div className="mixing-glass-zone__header">
@@ -1264,7 +1390,7 @@ export default function CocktailStudyApp() {
                     </div>
                   </section>
 
-                  <section className="mixing-tools" aria-label="量と作り方を選ぶ">
+                  <section className="mixing-tools" aria-label="材料と作り方を選ぶ">
                     <section className="ingredient-bench" aria-label="材料を選ぶ">
                       <div className="mixing-section-heading">
                         <p className="eyebrow">材料</p>
@@ -1308,34 +1434,18 @@ export default function CocktailStudyApp() {
                       </div>
                     </div>
 
-                    <div className={`mixing-tool-panel ${quantityPromptRowIndex !== null ? "is-prompting" : ""}`}>
-                      <div className="mixing-section-heading">
-                        <p className="eyebrow">量</p>
-                        <span className="helper">
-                          {quantityIngredient
-                            ? `行 ${quantityRowIndex + 1}: ${quantityIngredient.label}`
-                            : `行 ${activeRowIndex + 1}: 材料待ち`}
-                        </span>
-                      </div>
-                      <div className="palette-row palette-row--chips quantity-palette">
-                        {quantityOptions.map((choice) => {
-                          const isActive = quantityRow.quantityId === choice.id;
-                          return (
-                            <ChoiceChip
-                              key={choice.id || "blank"}
-                              label={choice.label}
-                              active={isActive}
-                              onClick={() => chooseQuantity(currentRecipe, choice.id)}
-                              className="choice-chip--quantity"
-                            />
-                          );
-                        })}
-                      </div>
-                    </div>
                   </section>
                 </div>
 
                 <div className="action-row">
+                  <button
+                    type="button"
+                    className="button button--challenge"
+                    onClick={handleChallengeStart}
+                    disabled={challengePhase === "playing"}
+                  >
+                    {challengeButtonLabel}
+                  </button>
                   <button type="submit" className="button button--primary">
                     採点
                   </button>

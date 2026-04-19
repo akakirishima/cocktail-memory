@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "カクテル暗記アプリ",
   description: "選択式でカクテルの作り方を覚える学習アプリ。",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
