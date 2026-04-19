@@ -1135,6 +1135,7 @@ export default function CocktailStudyApp() {
 
     const sourceChips = currentRecipe.sources.map((source) => sourceBadgeText(source));
     const glassChoice = glassChoiceById.get(currentDraft.glassId) || glassOptions[0];
+    const hasSelectedGlass = !!currentDraft.glassId;
     const methodChoice = methodChoiceById.get(currentDraft.methodId) || methodOptions[0];
     const activeRow = currentDraft.rows[activeRowIndex] || currentDraft.rows[0] || {
       ingredientId: "",
@@ -1371,14 +1372,16 @@ export default function CocktailStudyApp() {
                     </div>
 
                     <div className="mixing-glass-zone__body">
-                      <div className="mixing-glass-media">
-                        <ChoiceMedia
-                          visual={glassChoice.visual}
-                          alt={glassChoice.label}
-                          className="mixing-glass-media__image"
-                          sizes="260px"
-                        />
-                      </div>
+                      {hasSelectedGlass ? (
+                        <div className="mixing-glass-media">
+                          <ChoiceMedia
+                            visual={glassChoice.visual}
+                            alt={glassChoice.label}
+                            className="mixing-glass-media__image"
+                            sizes="260px"
+                          />
+                        </div>
+                      ) : null}
                       <div className="mixing-slots">
                         {currentRecipe.ingredients.map((_, index) =>
                           renderPourSlot(

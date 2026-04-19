@@ -69,48 +69,16 @@ const packshotIngredientVisuals = Object.fromEntries(
 ) as Record<string, VisualAsset>;
 
 export const glassVisuals: Record<string, VisualAsset> = {
-  "ロンググラス": makeCommonsVisual(
-    "ロンググラス",
-    "Longdrink glass from company Nachtmann.jpg",
-    "Pittigrilli / Wikimedia Commons",
-    "/placeholders/long-glass.svg"
-  ),
-  "小さいロックグラス": makeCommonsVisual(
-    "小さいロックグラス",
-    "A Glass of Whiskey on the Rocks.jpg",
-    "Benjamin Thompson / Wikimedia Commons",
-    "/placeholders/rocks-glass.svg"
-  ),
-  "スノースタイルショートグラス": makeCommonsVisual(
+  "ロンググラス": makeLocalVisual("ロンググラス", "/placeholders/long-glass.svg"),
+  "小さいロックグラス": makeLocalVisual("小さいロックグラス", "/placeholders/rocks-glass.svg"),
+  "スノースタイルショートグラス": makeLocalVisual(
     "スノースタイルショートグラス",
-    "Bloody Caesar.jpg",
-    "Wikimedia Commons",
     "/placeholders/snow-glass.svg"
   ),
-  "ショートグラス": makeCommonsVisual(
-    "ショートグラス",
-    "Small shotglass.jpg",
-    "Kelly Martin / Wikimedia Commons",
-    "/placeholders/short-glass.svg"
-  ),
-  "ワイングラス": makeCommonsVisual(
-    "ワイングラス",
-    "Wine Glass (6922364426).jpg",
-    "The Integer Club / Wikimedia Commons",
-    "/placeholders/wine-glass.svg"
-  ),
-  "マグカップ": makeCommonsVisual(
-    "マグカップ",
-    "Coffee mugs.jpg",
-    "Radhika41 / Wikimedia Commons",
-    "/placeholders/mug.svg"
-  ),
-  "グラス": makeCommonsVisual(
-    "グラス",
-    "Tumbler, ca. 1770 (CH 18386229).jpg",
-    "Cooper Hewitt, Smithsonian Design Museum / Wikimedia Commons",
-    "/placeholders/tumbler.svg"
-  ),
+  "ショートグラス": makeLocalVisual("ショートグラス", "/placeholders/short-glass.svg"),
+  "ワイングラス": makeLocalVisual("ワイングラス", "/placeholders/wine-glass.svg"),
+  "マグカップ": makeLocalVisual("マグカップ", "/placeholders/mug.svg"),
+  "グラス": makeLocalVisual("グラス", "/placeholders/tumbler.svg"),
   default: makeLocalVisual("グラス", "/placeholders/generic.svg"),
 };
 
