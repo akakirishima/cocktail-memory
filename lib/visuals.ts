@@ -1,9 +1,21 @@
+import ingredientImageAssets from "@/data/ingredient-image-assets.json";
+
 export type VisualAsset = {
   label: string;
   imageUrl: string;
   sourceUrl: string;
   credit: string;
   fallbackImage: string;
+};
+
+type IngredientImageAsset = {
+  label: string;
+  keys: string[];
+  fileName: string;
+  sourceUrl: string;
+  credit: string;
+  downloadUrl?: string;
+  localOnly?: boolean;
 };
 
 function commonsFilePath(fileName: string) {
@@ -38,6 +50,23 @@ function makeLocalVisual(label: string, fallbackImage: string) {
     fallbackImage,
   } satisfies VisualAsset;
 }
+
+function makePackshotVisual(asset: IngredientImageAsset): VisualAsset {
+  return {
+    label: asset.label,
+    imageUrl: `/ingredients/${asset.fileName}`,
+    sourceUrl: asset.sourceUrl,
+    credit: asset.credit,
+    fallbackImage: "/placeholders/generic.svg",
+  };
+}
+
+const packshotIngredientVisuals = Object.fromEntries(
+  (ingredientImageAssets as IngredientImageAsset[]).flatMap((asset) => {
+    const visual = makePackshotVisual(asset);
+    return Array.from(new Set([asset.label, ...asset.keys])).map((key) => [key, visual] as const);
+  })
+) as Record<string, VisualAsset>;
 
 export const glassVisuals: Record<string, VisualAsset> = {
   "ロンググラス": makeCommonsVisual(
@@ -85,7 +114,7 @@ export const glassVisuals: Record<string, VisualAsset> = {
   default: makeLocalVisual("グラス", "/placeholders/generic.svg"),
 };
 
-export const ingredientVisuals: Record<string, VisualAsset> = {
+const genericIngredientVisuals: Record<string, VisualAsset> = {
   ウォッカ: makeCommonsVisual(
     "ウォッカ",
     "Vodka bottle.jpg",
@@ -194,6 +223,11 @@ export const ingredientVisuals: Record<string, VisualAsset> = {
     "Badagnani / Wikimedia Commons",
     "/placeholders/generic.svg"
   ),
+};
+
+export const ingredientVisuals: Record<string, VisualAsset> = {
+  ...genericIngredientVisuals,
+  ...packshotIngredientVisuals,
 };
 
 export const methodVisuals: Record<string, VisualAsset> = {

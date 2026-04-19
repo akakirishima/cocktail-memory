@@ -172,6 +172,7 @@ const liqueurSet = new Set([
   "ディタ",
   "コアントロー",
   "プルシア",
+  "ピーチツリー",
   "パッソア",
   "ホワイトキュラソー",
   "ブルーキュラソー",
@@ -318,7 +319,7 @@ function visualForRecipeGlass(glass: string) {
   return visualForGlass(normalizeGlassId(glass) || glass);
 }
 
-function ingredientDisplayMode(group: string) {
+function ingredientDisplayMode(group: string): IngredientChoice["display"] {
   return group === "スピリッツ" || group === "リキュール" || group === "ワイン" ? "card" : "chip";
 }
 

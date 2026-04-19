@@ -1,0 +1,57 @@
+<svg width="900" height="1300" viewBox="0 0 900 1300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bottleGlass" x1="450" y1="80" x2="450" y2="1220" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.35" stop-color="#F8F7F5"/>
+      <stop offset="0.7" stop-color="#ECEBE8"/>
+      <stop offset="1" stop-color="#DCDAD7"/>
+    </linearGradient>
+    <linearGradient id="bottleHighlight" x1="300" y1="200" x2="390" y2="1150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.95"/>
+      <stop offset="0.4" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="neckLabel" x1="450" y1="100" x2="450" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6F1219"/>
+      <stop offset="1" stop-color="#8B1A24"/>
+    </linearGradient>
+    <linearGradient id="mainLabel" x1="330" y1="730" x2="580" y2="1040" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C9344A"/>
+      <stop offset="0.58" stop-color="#E15E69"/>
+      <stop offset="1" stop-color="#F2A1A6"/>
+    </linearGradient>
+    <linearGradient id="pinkGlass" x1="210" y1="250" x2="700" y2="1180" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FCE4E6" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#F6D0D4" stop-opacity="0.22"/>
+    </linearGradient>
+    <filter id="shadow" x="0" y="0" width="900" height="1300" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#8B1A24" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path d="M355 72C355 53 370 38 389 38H511C530 38 545 53 545 72V182C545 210 563 232 584 255C629 304 650 376 650 470V1034C650 1145 560 1232 450 1232H450C340 1232 250 1145 250 1034V470C250 376 271 304 316 255C337 232 355 210 355 182V72Z" fill="url(#bottleGlass)" stroke="#D5D1CB" stroke-width="6"/>
+    <path d="M355 72C355 53 370 38 389 38H511C530 38 545 53 545 72V182C545 210 563 232 584 255C629 304 650 376 650 470V1034C650 1145 560 1232 450 1232H450C340 1232 250 1145 250 1034V470C250 376 271 304 316 255C337 232 355 210 355 182V72Z" fill="url(#pinkGlass)" opacity="0.34"/>
+    <path d="M292 220C314 152 364 114 450 114C536 114 586 152 608 220V260C564 275 522 284 450 284C378 284 336 275 292 260V220Z" fill="#7A0E17"/>
+    <rect x="372" y="96" width="156" height="200" rx="24" fill="url(#neckLabel)"/>
+    <rect x="390" y="109" width="120" height="176" rx="18" fill="#8E1E2A" opacity="0.5"/>
+    <rect x="413" y="77" width="74" height="22" rx="10" fill="#5C0E13"/>
+    <rect x="402" y="294" width="96" height="20" rx="10" fill="#D9CBB7"/>
+    <rect x="418" y="318" width="64" height="18" rx="9" fill="#BFA96E"/>
+    <rect x="313" y="526" width="274" height="398" rx="40" fill="url(#mainLabel)" stroke="#F2E6D4" stroke-width="6"/>
+    <path d="M330 620C368 588 417 575 450 575C499 575 540 590 570 618V742C540 718 500 705 450 705C403 705 362 719 330 742V620Z" fill="#F7F2F0" opacity="0.38"/>
+    <path d="M335 758C362 732 402 718 450 718C500 718 541 733 568 759V812C541 787 500 772 450 772C404 772 363 787 335 812V758Z" fill="#FFF9F5" opacity="0.24"/>
+    <path d="M355 566C378 540 404 520 450 520C494 520 521 535 544 558C526 594 500 618 450 618C400 618 374 596 355 566Z" fill="#FFF0F1" opacity="0.32"/>
+    <text x="430" y="602" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700" fill="#FFFFFF" letter-spacing="2">SOHO</text>
+    <text x="450" y="835" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="56" font-weight="700" fill="#FFFFFF">Lychee</text>
+    <text x="450" y="887" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#FFFFFF" letter-spacing="5">LIQUEUR</text>
+    <text x="450" y="918" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" fill="#FFEFEF" letter-spacing="2">750 ML  21% ALC/VOL</text>
+    <path d="M322 885C374 852 427 836 450 836C478 836 527 852 578 884V906C528 871 478 858 450 858C422 858 372 871 322 906V885Z" fill="#FFF" opacity="0.88"/>
+    <path d="M349 381C348 333 370 303 411 289C402 320 411 344 441 363C420 361 397 367 379 382C370 389 362 395 349 381Z" fill="#FFFFFF" opacity="0.16"/>
+    <path d="M450 335C440 350 429 365 416 375C399 389 382 391 366 381C379 360 383 333 379 304C397 307 417 309 450 309C488 309 522 307 538 303C538 332 544 357 556 376C540 390 521 389 504 375C492 365 480 350 470 335Z" fill="#FFFFFF" opacity="0.18"/>
+    <path d="M368 170H532" stroke="#F4F0ED" stroke-opacity="0.4" stroke-width="12" stroke-linecap="round"/>
+    <path d="M330 145H570" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="8" stroke-linecap="round"/>
+    <ellipse cx="450" cy="1184" rx="82" ry="24" fill="#8B8B8B" opacity="0.18"/>
+    <path d="M287 228C282 256 278 301 278 333C278 365 286 401 299 431C283 459 272 500 265 546V998C265 1098 343 1177 450 1177C557 1177 635 1098 635 998V546C628 500 617 459 601 431C614 401 622 365 622 333C622 301 618 256 613 228C576 233 541 241 450 241C359 241 324 233 287 228Z" fill="url(#bottleHighlight)"/>
+  </g>
+</svg>

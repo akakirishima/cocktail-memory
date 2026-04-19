@@ -1,0 +1,130 @@
+[
+  {
+    "label": "カンパリ / CAMPARI",
+    "keys": ["カンパリ", "CAMPARI", "Campari"],
+    "fileName": "campari-local.png",
+    "sourceUrl": "https://www.campari.com/campari-milano/",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "コアントロー / Cointreau",
+    "keys": ["コアントロー", "COINTREAU", "Cointreau", "ホワイトキュラソー"],
+    "fileName": "cointreau-local.png",
+    "sourceUrl": "https://www.cointreau.com/us/en/products/cointreau",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "SOHO Lychee Liqueur",
+    "keys": ["ディタ", "DITA", "Soho", "SOHO"],
+    "fileName": "dita-local.png",
+    "sourceUrl": "https://www.soho.us/wp-content/uploads/2025/11/Soho-Lychee-Sell-Sheet.pdf",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "チンザノ ベルモット エクストラ・ドライ / Cinzano Vermouth Extra Dry",
+    "keys": ["チンザノ", "Cinzano"],
+    "fileName": "cinzano-extra-dry.jpg",
+    "downloadUrl": "https://item-shopping.c.yimg.jp/i/n/wineclubsato_8000020-000044_i_20240215121300",
+    "sourceUrl": "https://www.cinzano.com/ja-jp/our-products/vermouth/cinzano-extra-dry/",
+    "credit": "Cinzano official product page"
+  },
+  {
+    "label": "ピーチツリー / The Original Peachtree",
+    "keys": ["ピーチ", "ピーチツリー", "PEACHTREE", "Peachtree", "The Original Peachtree"],
+    "fileName": "peachtree-local.png",
+    "sourceUrl": "https://www.kirin.co.jp/alcohol/spirits_liqueur/peachtree/",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "ルジェ クレーム ド カシス / Lejay Crème de Cassis",
+    "keys": ["カシス", "カシスリキュール", "Lejay", "LEJAY", "ルジェ"],
+    "fileName": "lejay-cassis-local.webp",
+    "sourceUrl": "https://products.suntory.co.jp/d/3104691012063/",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "カルーア コーヒー リキュール / Kahlúa Original",
+    "keys": ["カルーア", "Kahlua", "Kahlúa"],
+    "fileName": "kahlua-local.png",
+    "sourceUrl": "https://products.suntory.co.jp/d/7610594455839/",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "マリブ / Malibu Original",
+    "keys": ["マリブ", "Malibu", "Malibu Original"],
+    "fileName": "malibu-original.avif",
+    "downloadUrl": "https://assets.malibudrinks.com/wp-content/uploads/2023/12/malibu-original-usa.png?tr=q-80,w-279",
+    "sourceUrl": "https://www.malibudrinks.com/en-us/products/malibu-original/",
+    "credit": "Malibu official product page"
+  },
+  {
+    "label": "ミスティア / MISTIA",
+    "keys": ["ミスティア", "MISTIA"],
+    "fileName": "mistia.jpg",
+    "downloadUrl": "https://www.suntory.co.jp/products/pimg/YMIST_R1_20110427.jpg?_x=254&_y=659",
+    "sourceUrl": "https://products.suntory.co.jp/d/4901777216280/",
+    "credit": "Suntory official product page"
+  },
+  {
+    "label": "プルシア / PRUCIA",
+    "keys": ["プルシア", "PRUCIA"],
+    "fileName": "prucia-local.png",
+    "sourceUrl": "https://products.suntory.co.jp/d/4901777200968/",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "スミノフ No.21 / Smirnoff No.21",
+    "keys": ["スミノフ", "SMIRNOFF", "Smirnoff", "Smirnoff No.21"],
+    "fileName": "smirnoff-no21.png",
+    "downloadUrl": "https://www.kirin.co.jp/alcohol/spirits_liqueur/spirits_liqueur_sour/images/index-mv-img-product-01.png",
+    "sourceUrl": "https://www.kirin.co.jp/alcohol/spirits_liqueur/spirits_liqueur_sour/",
+    "credit": "Kirin official product page"
+  },
+  {
+    "label": "ボルス パルフェタムール / Bols Parfait Amour",
+    "keys": ["ボルス パルフェタムール", "Bols Parfait Amour", "Parfait Amour"],
+    "fileName": "bols-parfait-amour.webp",
+    "downloadUrl": "https://bols.com/cdn/shop/products/BolsParfaitAmour.png?v=1637593224",
+    "sourceUrl": "https://bols.com/products/bols-parfait-amour-liqueur",
+    "credit": "Bols official product page"
+  },
+  {
+    "label": "ボルス ナチュラル ヨーグルト / Bols Natural Yoghurt",
+    "keys": ["ボルス ナチュラル ヨーグルト", "Bols Natural Yoghurt", "Natural Yoghurt"],
+    "fileName": "bols-natural-yoghurt.webp",
+    "downloadUrl": "https://bols.com/cdn/shop/products/BolsNaturalYoghurt.png?v=1637593208",
+    "sourceUrl": "https://bols.com/products/bols-natural-yoghurt-liqueur",
+    "credit": "Bols official product page"
+  },
+  {
+    "label": "ボルス メロン / Bols Melon",
+    "keys": ["ボルス メロン", "Bols Melon", "Melon Liqueur"],
+    "fileName": "bols-melon.jpg",
+    "downloadUrl": "https://us.bols.com/cdn/shop/products/MelonBOLSBottlesSLPNaturalFlavorslabel.jpg?v=1632491034&width=2048",
+    "sourceUrl": "https://us.bols.com/products/bols-melon-liqueur",
+    "credit": "Bols official product page"
+  },
+  {
+    "label": "シャルトリューズ ジョーヌ / Yellow Chartreuse",
+    "keys": ["シャルトリューズ ジョーヌ", "Yellow Chartreuse", "Chartreuse Jaune"],
+    "fileName": "yellow-chartreuse.png",
+    "downloadUrl": "https://www.chartreuse.fr/wp-content/uploads/2021/07/Jaune-70cl-022.png",
+    "sourceUrl": "https://www.chartreuse.fr/en/produit/yellow-chartreuse/",
+    "credit": "Chartreuse official product page"
+  },
+  {
+    "label": "桂花陳酒〈麗白〉",
+    "keys": ["桂花陳酒", "桂花陳酒〈麗白〉"],
+    "fileName": "keika-chenshu-reihaku.jpg",
+    "downloadUrl": "https://www.takarashuzo.co.jp/tkr-shohin/images/36265al.jpg",
+    "sourceUrl": "https://www.takarashuzo.co.jp/tkr-shohin/cmn_p_detail.php?p_prodid=3787",
+    "credit": "Takara Shuzo official product page"
+  }
+]

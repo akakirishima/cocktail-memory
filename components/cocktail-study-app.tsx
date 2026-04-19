@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type PointerEvent,
+} from "react";
 import {
   baseOptions,
   catalog,
@@ -475,6 +482,18 @@ export default function CocktailStudyApp() {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [answerVisible, setAnswerVisible] = useState(false);
   const [activeRowIndex, setActiveRowIndex] = useState(0);
+  const [draggingChoice, setDraggingChoice] = useState<IngredientChoice | null>(null);
+  const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
+  const [quantityPromptRowIndex, setQuantityPromptRowIndex] = useState<number | null>(null);
+  const mixingGlassRef = useRef<HTMLDivElement | null>(null);
+  const suppressNextIngredientClickRef = useRef(false);
+  const dragStartRef = useRef<{
+    choice: IngredientChoice;
+    pointerId: number;
+    x: number;
+    y: number;
+    moved: boolean;
+  } | null>(null);
 
   useEffect(() => {
     const loaded = loadState();
@@ -542,10 +561,15 @@ export default function CocktailStudyApp() {
   useEffect(() => {
     if (!currentDraft) {
       setActiveRowIndex(0);
+      setQuantityPromptRowIndex(null);
       return;
     }
 
     setActiveRowIndex(firstIncompleteRowIndex(currentDraft));
+    setQuantityPromptRowIndex(null);
+    setDraggingChoice(null);
+    setDragPoint(null);
+    dragStartRef.current = null;
   }, [currentRecipe?.id]);
 
   useEffect(() => {
@@ -609,6 +633,157 @@ export default function CocktailStudyApp() {
         rowIndex === index ? { ...row, [field]: value } : row
       ),
     }));
+  }
+
+  function rowIndexForNextPour(draft: PracticeDraft) {
+    const emptyIngredientIndex = draft.rows.findIndex((row) => !row.ingredientId);
+    if (emptyIngredientIndex !== -1) {
+      return emptyIngredientIndex;
+    }
+
+    return Math.max(0, Math.min(activeRowIndex, draft.rows.length - 1));
+  }
+
+  function rowIndexAfterQuantity(nextRows: PracticeRow[], fallbackIndex: number) {
+    const emptyIngredientIndex = nextRows.findIndex((row) => !row.ingredientId);
+    if (emptyIngredientIndex !== -1) {
+      return emptyIngredientIndex;
+    }
+
+    const missingQuantityIndex = nextRows.findIndex((row) => row.ingredientId && !row.quantityId);
+    if (missingQuantityIndex !== -1) {
+      return missingQuantityIndex;
+    }
+
+    return fallbackIndex;
+  }
+
+  function isPointInsideMixingGlass(point: { x: number; y: number }) {
+    const rect = mixingGlassRef.current?.getBoundingClientRect();
+    if (!rect) {
+      return false;
+    }
+
+    return (
+      point.x >= rect.left &&
+      point.x <= rect.right &&
+      point.y >= rect.top &&
+      point.y <= rect.bottom
+    );
+  }
+
+  function pourIngredient(recipe: Recipe, choice: IngredientChoice, targetIndex?: number) {
+    const draft = normalizeDraftForRecipe(recipe, state.drafts[recipe.id]);
+    if (!draft.rows.length) {
+      return;
+    }
+
+    const index =
+      typeof targetIndex === "number"
+        ? Math.max(0, Math.min(targetIndex, draft.rows.length - 1))
+        : rowIndexForNextPour(draft);
+
+    const nextDraft = {
+      ...draft,
+      rows: draft.rows.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, ingredientId: choice.id, quantityId: "" } : row
+      ),
+    };
+
+    setActiveRowIndex(index);
+    setQuantityPromptRowIndex(index);
+    persistDraft(recipe, nextDraft);
+  }
+
+  function chooseQuantity(recipe: Recipe, quantityId: string) {
+    const draft = normalizeDraftForRecipe(recipe, state.drafts[recipe.id]);
+    if (!draft.rows.length) {
+      return;
+    }
+
+    const requestedIndex = quantityPromptRowIndex ?? activeRowIndex;
+    const index = Math.max(0, Math.min(requestedIndex, draft.rows.length - 1));
+    const nextRows = draft.rows.map((row, rowIndex) =>
+      rowIndex === index ? { ...row, quantityId } : row
+    );
+    const nextDraft = {
+      ...draft,
+      rows: nextRows,
+    };
+
+    persistDraft(recipe, nextDraft);
+    setQuantityPromptRowIndex(null);
+    setActiveRowIndex(rowIndexAfterQuantity(nextRows, index));
+  }
+
+  function clearDragging(pointerId?: number, target?: EventTarget & Element) {
+    if (
+      typeof pointerId === "number" &&
+      target instanceof Element &&
+      "hasPointerCapture" in target &&
+      target.hasPointerCapture(pointerId)
+    ) {
+      target.releasePointerCapture(pointerId);
+    }
+
+    dragStartRef.current = null;
+    setDraggingChoice(null);
+    setDragPoint(null);
+  }
+
+  function handleIngredientPointerDown(
+    choice: IngredientChoice,
+    event: PointerEvent<HTMLButtonElement>
+  ) {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    dragStartRef.current = {
+      choice,
+      pointerId: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      moved: false,
+    };
+    setDraggingChoice(choice);
+    setDragPoint({ x: event.clientX, y: event.clientY });
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handleIngredientPointerMove(event: PointerEvent<HTMLButtonElement>) {
+    const dragStart = dragStartRef.current;
+    if (!dragStart || dragStart.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const distance = Math.hypot(event.clientX - dragStart.x, event.clientY - dragStart.y);
+    if (distance > 8) {
+      dragStart.moved = true;
+      event.preventDefault();
+    }
+
+    setDragPoint({ x: event.clientX, y: event.clientY });
+  }
+
+  function handleIngredientPointerUp(event: PointerEvent<HTMLButtonElement>) {
+    const dragStart = dragStartRef.current;
+    if (!dragStart || dragStart.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const point = { x: event.clientX, y: event.clientY };
+    const shouldPour = dragStart.moved && isPointInsideMixingGlass(point);
+    if (currentRecipe && shouldPour) {
+      pourIngredient(currentRecipe, dragStart.choice);
+    }
+
+    suppressNextIngredientClickRef.current = dragStart.moved;
+    clearDragging(event.pointerId, event.currentTarget);
+  }
+
+  function handleIngredientPointerCancel(event: PointerEvent<HTMLButtonElement>) {
+    clearDragging(event.pointerId, event.currentTarget);
   }
 
   function selectNextRecipe(forceDifferent = true) {
@@ -885,70 +1060,109 @@ export default function CocktailStudyApp() {
       quantityId: "",
     };
     const activeIngredientChoice = ingredientChoiceById.get(activeRow.ingredientId) || null;
-    const activeQuantityLabel = formatQuantityLabel(activeRow.quantityId);
+    const quantityRowIndex = Math.max(
+      0,
+      Math.min(quantityPromptRowIndex ?? activeRowIndex, currentDraft.rows.length - 1)
+    );
+    const quantityRow = currentDraft.rows[quantityRowIndex] || activeRow;
+    const quantityIngredient = ingredientChoiceById.get(quantityRow.ingredientId) || null;
+    const completedRows = currentDraft.rows.filter((row) => row.ingredientId && row.quantityId).length;
+    const nextEmptyIngredientIndex = currentDraft.rows.findIndex((row) => !row.ingredientId);
 
-    function renderSelectedField({
-      label,
-      value,
-      visual,
-      hint,
-    }: {
-      label: string;
-      value: string;
-      visual: Pick<VisualAsset, "imageUrl" | "fallbackImage"> | null;
-      hint: string;
-    }) {
-      return (
-        <div className="slot-summary" aria-label={`${label} ${value}`}>
-          <span className="slot-summary__label">{label}</span>
-          <span className="slot-summary__body">
-            {visual ? (
-              <span className="slot-summary__thumb">
-                <ChoiceMedia visual={visual} alt={value} className="slot-summary__image" sizes="80px" />
-              </span>
-            ) : null}
-            <span className="slot-summary__text">
-              <strong>{value}</strong>
-              <span>{hint}</span>
-            </span>
-          </span>
-        </div>
-      );
-    }
-
-    function renderIngredientRow(row: PracticeRow, index: number) {
+    function renderPourSlot(row: PracticeRow, index: number) {
       const ingredientChoice = ingredientChoiceById.get(row.ingredientId) || null;
       const quantityChoice = quantityOptions.find((choice) => choice.id === row.quantityId) || null;
       const isActive = index === activeRowIndex;
+      const needsQuantity = quantityPromptRowIndex === index && !!ingredientChoice && !quantityChoice;
 
       return (
-        <div key={`${currentRecipe.id}-row-${index}`} className={`slot-row ${isActive ? "is-active" : ""}`}>
-          <div className="slot-row__number">{index + 1}</div>
+        <button
+          key={`${currentRecipe.id}-pour-${index}`}
+          type="button"
+          className={`mix-slot ${isActive ? "is-active" : ""} ${needsQuantity ? "needs-quantity" : ""}`.trim()}
+          onClick={() => {
+            setActiveRowIndex(index);
+            setQuantityPromptRowIndex(ingredientChoice ? index : null);
+          }}
+        >
+          <span className="mix-slot__number">{index + 1}</span>
+          <span className="mix-slot__media">
+            {ingredientChoice?.visual ? (
+              <ChoiceMedia
+                visual={ingredientChoice.visual}
+                alt={ingredientChoice.label}
+                className="mix-slot__image"
+                sizes="64px"
+              />
+            ) : (
+              <span className="mix-slot__empty">+</span>
+            )}
+          </span>
+          <span className="mix-slot__body">
+            <strong>{ingredientChoice?.label || "材料を入れる"}</strong>
+            <span>{quantityChoice?.label || "未選択"}</span>
+          </span>
+        </button>
+      );
+    }
 
-          <button type="button" className="slot-cell" onClick={() => setActiveRowIndex(index)}>
-            <span className="slot-cell__label">材料</span>
-            <span className="slot-cell__value">
-              {ingredientChoice?.visual ? (
-                <span className="slot-cell__thumb">
-                  <ChoiceMedia
-                    visual={ingredientChoice.visual}
-                    alt={ingredientChoice.label}
-                    className="slot-cell__image"
-                    sizes="56px"
-                  />
-                </span>
+    function renderIngredientChoice(choice: IngredientChoice) {
+      const active = activeIngredientChoice?.id === choice.id;
+      const isDragging = draggingChoice?.id === choice.id;
+      const className = `${choice.display === "card" ? "pour-card" : "pour-chip"} ${
+        active ? "is-active" : ""
+      } ${isDragging ? "is-dragging" : ""}`.trim();
+      const pointerHandlers = {
+        onPointerDown: (event: PointerEvent<HTMLButtonElement>) =>
+          handleIngredientPointerDown(choice, event),
+        onPointerMove: handleIngredientPointerMove,
+        onPointerUp: handleIngredientPointerUp,
+        onPointerCancel: handleIngredientPointerCancel,
+        onClick: () => {
+          if (suppressNextIngredientClickRef.current) {
+            suppressNextIngredientClickRef.current = false;
+            return;
+          }
+          pourIngredient(currentRecipe, choice);
+        },
+      };
+
+      if (choice.display === "card") {
+        return (
+          <button
+            key={choice.id}
+            type="button"
+            className={className}
+            aria-pressed={active}
+            aria-label={`${choice.label}をテーブルに入れる`}
+            {...pointerHandlers}
+          >
+            <span className="pour-card__media">
+              {choice.visual ? (
+                <ChoiceMedia
+                  visual={choice.visual}
+                  alt={choice.label}
+                  className="pour-card__image"
+                  sizes="150px"
+                />
               ) : null}
-              <span>{ingredientChoice?.label || "未選択"}</span>
             </span>
+            <span className="pour-card__label">{choice.label}</span>
           </button>
+        );
+      }
 
-          <button type="button" className="slot-cell slot-cell--quantity" onClick={() => setActiveRowIndex(index)}>
-            <span className="slot-cell__label">量</span>
-            <span className="slot-cell__value">
-              <span>{quantityChoice?.label || "未選択"}</span>
-            </span>
-          </button>
-        </div>
+      return (
+        <button
+          key={choice.id}
+          type="button"
+          className={className}
+          aria-pressed={active}
+          aria-label={`${choice.label}をテーブルに入れる`}
+          {...pointerHandlers}
+        >
+          {choice.label}
+        </button>
       );
     }
 
@@ -975,61 +1189,150 @@ export default function CocktailStudyApp() {
               </div>
             </div>
 
-            <div className="practice-hero">
-              {renderRecipeImage(currentRecipe, "recipe-art recipe-art--hero")}
-              <div className="practice-hero__copy">
-                <div className="badge-row">
-                  {sourceChips.map((text) => (
-                    <span className="badge" key={text}>
-                      {text}
-                    </span>
-                  ))}
-                </div>
-                <p className="practice-hero__notes">
-                  {currentRecipe.notes.length ? currentRecipe.notes.join(" / ") : "注記はありません。"}
-                </p>
-                {currentRecipe.characteristics.length ? (
-                  <div className="badge-row">
-                    {currentRecipe.characteristics.map((feature) => (
-                      <span key={feature} className="badge badge--amber">
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-                ) : null}
+            <div className="practice-context">
+              <div className="badge-row">
+                {sourceChips.map((text) => (
+                  <span className="badge" key={text}>
+                    {text}
+                  </span>
+                ))}
                 <span className="badge badge--amber">{currentRecipe.base}</span>
               </div>
+              <p className="helper">
+                {currentRecipe.notes.length ? currentRecipe.notes.join(" / ") : "注記はありません。"}
+              </p>
             </div>
 
-            <form className="practice-form" onSubmit={handleSubmit}>
-              <div className="practice-board">
-                <div className="choice-grid">
-                  {renderSelectedField({
-                    label: "グラス",
-                    value: glassChoice?.label || "未記載",
-                    visual: glassChoice?.visual || null,
-                    hint: "パレットから選ぶ",
-                  })}
-                  {renderSelectedField({
-                    label: "作り方",
-                    value: methodChoice?.label || "未記載",
-                    visual: methodChoice?.visual || null,
-                    hint: "パレットから選ぶ",
-                  })}
-                </div>
+            <form className="practice-form practice-form--mixing" onSubmit={handleSubmit}>
+              <div className="mixing-board">
+                <section className="glass-strip" aria-label="グラスを選ぶ">
+                  <div className="mixing-section-heading">
+                    <p className="eyebrow">グラス</p>
+                    <span className="helper">タップで選択</span>
+                  </div>
+                  <div className="glass-strip__scroller">
+                    {glassOptions.map((choice) => (
+                      <ChoiceCard
+                        key={choice.id || "glass-blank"}
+                        label={choice.label}
+                        visual={choice.visual}
+                        active={glassChoice?.id === choice.id}
+                        onClick={() => updateField(currentRecipe, "glassId", choice.id)}
+                        className="choice-card--glass glass-strip__card"
+                      />
+                    ))}
+                  </div>
+                </section>
 
-                <div className="row-hint">
-                  <span className="badge badge--amber">選択中の行 {activeRowIndex + 1}</span>
-                  <span className="helper">材料または量を押すと行を切り替えられます。</span>
-                </div>
+                <div className="mixing-layout">
+                  <section
+                    ref={mixingGlassRef}
+                    className={`mixing-glass-zone ${draggingChoice ? "is-ready" : ""}`.trim()}
+                    aria-label="材料を並べるテーブル"
+                  >
+                    <div className="mixing-glass-zone__header">
+                      <div>
+                        <p className="eyebrow">テーブルに並べる</p>
+                        <p className="helper">
+                          {draggingChoice
+                            ? `${draggingChoice.label}を行の上で離す`
+                            : "選んだ材料は空いている行へ順番に入ります"}
+                        </p>
+                      </div>
+                      <span className="badge badge--amber">
+                        {completedRows}/{currentRecipe.ingredients.length}
+                      </span>
+                    </div>
 
-                <div className="slot-list">
-                  {currentRecipe.ingredients.map((_, index) =>
-                    renderIngredientRow(
-                      currentDraft.rows[index] || { ingredientId: "", quantityId: "" },
-                      index
-                    )
-                  )}
+                    <div className="mixing-glass-zone__body">
+                      <div className="mixing-glass-media">
+                        <ChoiceMedia
+                          visual={glassChoice.visual}
+                          alt={glassChoice.label}
+                          className="mixing-glass-media__image"
+                          sizes="260px"
+                        />
+                      </div>
+                      <div className="mixing-slots">
+                        {currentRecipe.ingredients.map((_, index) =>
+                          renderPourSlot(
+                            currentDraft.rows[index] || { ingredientId: "", quantityId: "" },
+                            index
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </section>
+
+                  <section className="mixing-tools" aria-label="量と作り方を選ぶ">
+                    <section className="ingredient-bench" aria-label="材料を選ぶ">
+                      <div className="mixing-section-heading">
+                        <p className="eyebrow">材料</p>
+                        <span className="helper">
+                          {nextEmptyIngredientIndex === -1
+                            ? "満杯です。行を押すと置き換えできます"
+                            : `次は行 ${nextEmptyIngredientIndex + 1} に入ります`}
+                        </span>
+                      </div>
+                      {ingredientGroups.map((group) => (
+                        <div key={group.group} className="ingredient-bench__group">
+                          <p className="mini-title">{group.group}</p>
+                          <div
+                            className={`ingredient-bench__row ${
+                              group.choices.some((choice) => choice.display === "card")
+                                ? "ingredient-bench__row--cards"
+                                : "ingredient-bench__row--chips"
+                            }`}
+                          >
+                            {group.choices.map((choice) => renderIngredientChoice(choice))}
+                          </div>
+                        </div>
+                      ))}
+                    </section>
+
+                    <div className="mixing-tool-panel">
+                      <div className="mixing-section-heading">
+                        <p className="eyebrow">作り方</p>
+                        <span className="helper">{methodChoice?.label || "未記載"}</span>
+                      </div>
+                      <div className="palette-row palette-row--chips">
+                        {methodOptions.map((choice) => (
+                          <ChoiceChip
+                            key={choice.id || "method-blank"}
+                            label={choice.label}
+                            active={methodChoice?.id === choice.id}
+                            onClick={() => updateField(currentRecipe, "methodId", choice.id)}
+                            className="choice-chip--method"
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className={`mixing-tool-panel ${quantityPromptRowIndex !== null ? "is-prompting" : ""}`}>
+                      <div className="mixing-section-heading">
+                        <p className="eyebrow">量</p>
+                        <span className="helper">
+                          {quantityIngredient
+                            ? `行 ${quantityRowIndex + 1}: ${quantityIngredient.label}`
+                            : `行 ${activeRowIndex + 1}: 材料待ち`}
+                        </span>
+                      </div>
+                      <div className="palette-row palette-row--chips quantity-palette">
+                        {quantityOptions.map((choice) => {
+                          const isActive = quantityRow.quantityId === choice.id;
+                          return (
+                            <ChoiceChip
+                              key={choice.id || "blank"}
+                              label={choice.label}
+                              active={isActive}
+                              onClick={() => chooseQuantity(currentRecipe, choice.id)}
+                              className="choice-chip--quantity"
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </section>
                 </div>
 
                 <div className="action-row">
@@ -1050,103 +1353,29 @@ export default function CocktailStudyApp() {
 
               {renderResultPanel(currentRecipe, currentDraft)}
             </form>
+
+            {draggingChoice && dragPoint ? (
+              <div
+                className="drag-preview"
+                style={{ left: dragPoint.x, top: dragPoint.y }}
+                aria-hidden="true"
+              >
+                {draggingChoice.visual ? (
+                  <span className="drag-preview__media">
+                    <ChoiceMedia
+                      visual={draggingChoice.visual}
+                      alt={draggingChoice.label}
+                      className="drag-preview__image"
+                      sizes="96px"
+                    />
+                  </span>
+                ) : null}
+                <span>{draggingChoice.label}</span>
+              </div>
+            ) : null}
           </div>
 
           <aside className="surface surface--side palette-panel">
-            <section className="mini-panel">
-              <p className="eyebrow">パレット</p>
-              <p className="helper">グラス、作り方、材料、量をここから選びます。</p>
-            </section>
-
-            <section className="mini-panel">
-              <p className="eyebrow">グラス</p>
-              <div className="palette-row palette-row--cards">
-                {glassOptions.map((choice) => (
-                  <ChoiceCard
-                    key={choice.id || "glass-blank"}
-                    label={choice.label}
-                    visual={choice.visual}
-                    active={glassChoice?.id === choice.id}
-                    onClick={() => updateField(currentRecipe, "glassId", choice.id)}
-                    className="choice-card--glass"
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section className="mini-panel">
-              <p className="eyebrow">作り方</p>
-              <div className="palette-row palette-row--chips">
-                {methodOptions.map((choice) => (
-                  <ChoiceChip
-                    key={choice.id || "method-blank"}
-                    label={choice.label}
-                    active={methodChoice?.id === choice.id}
-                    onClick={() => updateField(currentRecipe, "methodId", choice.id)}
-                    className="choice-chip--method"
-                  />
-                ))}
-              </div>
-            </section>
-
-            <section className="mini-panel">
-              <p className="eyebrow">材料</p>
-              <p className="helper">{activeIngredientChoice ? `行 ${activeRowIndex + 1}: ${activeIngredientChoice.label}` : "材料を押してから選んでください。"}</p>
-              {ingredientGroups.map((group) => (
-                <div key={group.group} className="palette-group">
-                  <p className="mini-title">{group.group}</p>
-                  <div className={`palette-row ${group.choices.some((choice) => choice.display === "card") ? "palette-row--cards" : "palette-row--chips"}`}>
-                    {group.choices.map((choice) =>
-                      choice.display === "card" ? (
-                        <ChoiceCard
-                          key={choice.id}
-                          label={choice.label}
-                          visual={choice.visual}
-                          active={activeIngredientChoice?.id === choice.id}
-                          onClick={() =>
-                            updateRow(currentRecipe, activeRowIndex, "ingredientId", choice.id)
-                          }
-                          className="choice-card--ingredient"
-                        />
-                      ) : (
-                        <ChoiceChip
-                          key={choice.id}
-                          label={choice.label}
-                          active={activeIngredientChoice?.id === choice.id}
-                          onClick={() =>
-                            updateRow(currentRecipe, activeRowIndex, "ingredientId", choice.id)
-                          }
-                          className="choice-chip--ingredient"
-                        />
-                      )
-                    )}
-                  </div>
-                </div>
-              ))}
-            </section>
-
-            <section className="mini-panel">
-              <p className="eyebrow">量</p>
-              <div className="palette-row palette-row--chips quantity-palette">
-                {quantityOptions.map((choice) => {
-                  const isActive = activeRow.quantityId === choice.id;
-                  return (
-                    <ChoiceChip
-                      key={choice.id || "blank"}
-                      label={choice.label}
-                      active={isActive}
-                      onClick={() => updateRow(currentRecipe, activeRowIndex, "quantityId", choice.id)}
-                      className="choice-chip--quantity"
-                    />
-                  );
-                })}
-              </div>
-              <div className="row-hint">
-                <span className="badge badge--amber">{activeQuantityLabel}</span>
-                <span className="helper">量は文字ラベルで選択します。</span>
-              </div>
-            </section>
-
             <section className="mini-panel">
               <p className="eyebrow">出題範囲</p>
               <div className="chip-row">
@@ -1524,18 +1753,6 @@ export default function CocktailStudyApp() {
             <span className="chip">習得済 {masteredCount}件</span>
             <span className="chip">履歴 {state.stats.history.length}件</span>
           </div>
-        </div>
-
-        <div className="hero__art">
-          {currentRecipe ? (
-            <ChoiceMedia
-              visual={currentRecipe.image}
-              alt={currentRecipe.image.alt}
-              className="hero__art-image"
-              sizes="(max-width: 900px) 100vw, 420px"
-              priority
-            />
-          ) : null}
         </div>
       </header>
 
