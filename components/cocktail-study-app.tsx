@@ -113,6 +113,13 @@ type ChallengePhase = "ready" | "playing" | "graded";
 
 const STORAGE_KEY = "cocktail-memory-v2";
 const CHALLENGE_TIME_LIMIT = 90;
+const GENERIC_VISUAL: VisualAsset = {
+  label: "未選択",
+  imageUrl: "/placeholders/generic.svg",
+  sourceUrl: "/placeholders/generic.svg",
+  credit: "Local fallback",
+  fallbackImage: "/placeholders/generic.svg",
+};
 const DATE_FORMAT = new Intl.DateTimeFormat("ja-JP", {
   dateStyle: "short",
   timeStyle: "short",
@@ -489,7 +496,6 @@ export default function CocktailStudyApp() {
   const [hydrated, setHydrated] = useState(false);
   const [state, setState] = useState<AppState>(() => createDefaultState());
   const [feedback, setFeedback] = useState<Feedback | null>(null);
-  const [answerVisible, setAnswerVisible] = useState(false);
   const [activeRowIndex, setActiveRowIndex] = useState(0);
   const [draggingChoice, setDraggingChoice] = useState<IngredientChoice | null>(null);
   const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
@@ -551,7 +557,6 @@ export default function CocktailStudyApp() {
     if (!hydrated) return;
     if (!activeDeck.length) {
       setFeedback(null);
-      setAnswerVisible(false);
       resetChallenge();
       return;
     }
@@ -576,7 +581,6 @@ export default function CocktailStudyApp() {
     });
 
     setFeedback(null);
-    setAnswerVisible(false);
     resetChallenge();
   }, [activeDeck, hydrated]);
 
@@ -653,7 +657,6 @@ export default function CocktailStudyApp() {
     }
 
     setComboMessage(null);
-    setAnswerVisible(false);
   }
 
   function persistDraft(recipe: Recipe, nextDraft: PracticeDraft) {
@@ -862,7 +865,6 @@ export default function CocktailStudyApp() {
       currentRecipeId: next.id,
     }));
     setFeedback(null);
-    setAnswerVisible(false);
     resetChallenge();
   }
 
@@ -950,7 +952,6 @@ export default function CocktailStudyApp() {
       timeLeft >= 60 ? "FAST" : timeLeft >= 30 ? "PERFECT" : timeLeft > 0 ? "CLEAR" : "TIME-UP CLEAR";
     updateStats(currentRecipe, result);
     setFeedback({ recipeId: currentRecipe.id, result });
-    setAnswerVisible(true);
     setChallengePhase("graded");
     setChallengeStartedAt(null);
 
@@ -966,10 +967,6 @@ export default function CocktailStudyApp() {
     }
   }
 
-  function handleShowAnswer() {
-    setAnswerVisible((previous) => !previous);
-  }
-
   function handlePickFromLibrary(recipe: Recipe, tab: TabId = "library") {
     setState((previous) => ({
       ...previous,
@@ -977,133 +974,7 @@ export default function CocktailStudyApp() {
       tab,
     }));
     setFeedback(null);
-    setAnswerVisible(false);
     resetChallenge();
-  }
-
-  function renderResultPanel(recipe: Recipe, _draft: PracticeDraft) {
-    const graded = feedback?.recipeId === recipe.id ? feedback.result : null;
-    const answerGlass = glassChoiceById.get(normalizeGlassId(recipe.glass)) || glassOptions[0];
-    const answerMethod = methodChoiceById.get(normalizeMethodId(recipe.method)) || methodOptions[0];
-
-    if (!graded && !answerVisible) {
-      return (
-        <div className="result-shell">
-          <p className="helper">
-            グラス、作り方、各行の材料と量を選んでから採点してください。
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="result-shell">
-        {graded ? (
-          <div className="scoreline">
-            <strong>{graded.perfect ? "完全一致" : `${graded.points}/${graded.possible}`}</strong>
-            <span>{graded.accuracy}%</span>
-          </div>
-        ) : null}
-
-        {graded ? (
-          <div className="diff-grid">
-            {graded.details.map((detail) => (
-              <div key={detail.label} className={`diff-row ${detail.ok ? "is-ok" : "is-bad"}`}>
-                <span className="diff-row__label">{detail.label}</span>
-                <span className="diff-row__expected">{detail.expected}</span>
-                <span className="diff-row__actual">{detail.actual}</span>
-              </div>
-            ))}
-          </div>
-        ) : null}
-
-        {answerVisible ? (
-          <div className="answer-shell">
-            <h3>答え</h3>
-            <div className="answer-media-grid">
-              {renderRecipeImage(recipe, "recipe-art recipe-art--answer")}
-
-              <div className="answer-answerstack">
-                <div className="answer-tile-row">
-                  <article className="answer-tile">
-                    <span className="answer-tile__label">グラス</span>
-                    <span className="answer-tile__body">
-                      <span className="answer-tile__thumb">
-                        <ChoiceMedia
-                          visual={answerGlass.visual}
-                          alt={answerGlass.label}
-                          className="answer-tile__image"
-                          sizes="72px"
-                        />
-                      </span>
-                      <span className="answer-tile__text">{formatGlassLabel(answerGlass.id)}</span>
-                    </span>
-                  </article>
-
-                  <article className="answer-tile">
-                    <span className="answer-tile__label">作り方</span>
-                    <span className="answer-tile__body">
-                      <span className="answer-tile__thumb">
-                        <ChoiceMedia
-                          visual={answerMethod.visual}
-                          alt={answerMethod.label}
-                          className="answer-tile__image"
-                          sizes="72px"
-                        />
-                      </span>
-                      <span className="answer-tile__text">{formatMethodLabel(answerMethod.id)}</span>
-                    </span>
-                  </article>
-                </div>
-
-                <ul className="answer-list answer-list--visual">
-                  {recipe.ingredients.map((ingredient) => {
-                    const normalizedId = normalizeIngredientId(ingredient.name);
-                    const ingredientChoice = ingredientChoiceById.get(normalizedId) || null;
-                    return (
-                      <li key={`${recipe.id}-${ingredient.name}-${ingredient.amount}`} className="answer-list__item">
-                        {ingredientChoice?.visual ? (
-                          <span className="answer-list__thumb">
-                            <ChoiceMedia
-                              visual={ingredientChoice.visual}
-                              alt={ingredientChoice.label}
-                              className="answer-list__image"
-                              sizes="48px"
-                            />
-                          </span>
-                        ) : null}
-                        <span className="answer-list__text">{formatIngredientLine(ingredient)}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-
-                {recipe.characteristics.length ? (
-                  <div className="answer-feature">
-                    <p className="mini-title">特徴</p>
-                    <div className="badge-row">
-                      {recipe.characteristics.map((feature) => (
-                        <span key={feature} className="badge badge--amber">
-                          {feature}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-
-            {recipe.notes.length ? (
-              <p className="answer-note">{recipe.notes.join(" / ")}</p>
-            ) : null}
-          </div>
-        ) : null}
-
-        {!graded && answerVisible ? (
-          <p className="helper">答えは表示中です。採点はまだしていません。</p>
-        ) : null}
-      </div>
-    );
   }
 
   function renderRecipeImage(recipe: Recipe, className: string) {
@@ -1133,6 +1004,8 @@ export default function CocktailStudyApp() {
       );
     }
 
+    const recipe = currentRecipe;
+    const draft = currentDraft;
     const sourceChips = currentRecipe.sources.map((source) => sourceBadgeText(source));
     const glassChoice = glassChoiceById.get(currentDraft.glassId) || glassOptions[0];
     const hasSelectedGlass = !!currentDraft.glassId;
@@ -1270,11 +1143,136 @@ export default function CocktailStudyApp() {
       );
     }
 
+    function renderInlineGrading() {
+      if (!graded) {
+        return null;
+      }
+
+      type CompareItem = {
+        key: string;
+        label: string;
+        text: string;
+        visual: VisualAsset | null;
+        ok: boolean;
+      };
+
+      const expectedGlassId = normalizeGlassId(recipe.glass);
+      const actualGlassId = normalizeGlassId(draft.glassId);
+      const expectedMethodId = normalizeMethodId(recipe.method);
+      const actualMethodId = normalizeMethodId(draft.methodId);
+      const detailByLabel = new Map(graded.details.map((detail) => [detail.label, detail]));
+
+      const actualItems: CompareItem[] = [
+        {
+          key: "glass",
+          label: "グラス",
+          text: detailByLabel.get("グラス")?.actual || formatGlassLabel(actualGlassId),
+          visual: actualGlassId ? glassChoiceById.get(actualGlassId)?.visual || null : null,
+          ok: !!detailByLabel.get("グラス")?.ok,
+        },
+        {
+          key: "method",
+          label: "作り方",
+          text: detailByLabel.get("作り方")?.actual || formatMethodLabel(actualMethodId),
+          visual: actualMethodId ? methodChoiceById.get(actualMethodId)?.visual || null : null,
+          ok: !!detailByLabel.get("作り方")?.ok,
+        },
+        ...recipe.ingredients.map((ingredient, index) => {
+          const detail = detailByLabel.get(`材料 ${index + 1}`);
+          const row = draft.rows[index] || { ingredientId: "", quantityId: "" };
+          const actualName = normalizeIngredientId(row.ingredientId);
+          return {
+            key: `ingredient-${index}`,
+            label: `材料 ${index + 1}`,
+            text: detail?.actual || "未選択",
+            visual: actualName ? ingredientChoiceById.get(actualName)?.visual || null : null,
+            ok: !!detail?.ok,
+          };
+        }),
+      ];
+
+      const expectedItems: CompareItem[] = [
+        {
+          key: "glass",
+          label: "グラス",
+          text: detailByLabel.get("グラス")?.expected || formatGlassLabel(expectedGlassId),
+          visual: expectedGlassId ? glassChoiceById.get(expectedGlassId)?.visual || null : null,
+          ok: !!detailByLabel.get("グラス")?.ok,
+        },
+        {
+          key: "method",
+          label: "作り方",
+          text: detailByLabel.get("作り方")?.expected || formatMethodLabel(expectedMethodId),
+          visual: expectedMethodId ? methodChoiceById.get(expectedMethodId)?.visual || null : null,
+          ok: !!detailByLabel.get("作り方")?.ok,
+        },
+        ...recipe.ingredients.map((ingredient, index) => {
+          const detail = detailByLabel.get(`材料 ${index + 1}`);
+          const expectedName = normalizeIngredientId(ingredient.name);
+          return {
+            key: `ingredient-${index}`,
+            label: `材料 ${index + 1}`,
+            text: detail?.expected || formatIngredientLine(ingredient),
+            visual: expectedName ? ingredientChoiceById.get(expectedName)?.visual || null : null,
+            ok: !!detail?.ok,
+          };
+        }),
+      ];
+
+      function renderCompareRow(item: CompareItem, side: "actual" | "expected") {
+        const visual = item.visual || GENERIC_VISUAL;
+
+        return (
+          <div key={`${side}-${item.key}`} className={`grade-compare__row ${item.ok ? "is-ok" : "is-bad"}`}>
+            <span className="grade-compare__thumb">
+              <ChoiceMedia
+                visual={visual}
+                alt={item.text}
+                className="grade-compare__image"
+                sizes="56px"
+              />
+            </span>
+            <span className="grade-compare__row-label">{item.label}</span>
+            <strong>{item.text}</strong>
+          </div>
+        );
+      }
+
+      return (
+        <section className={`grade-compare ${graded.perfect ? "is-perfect" : "is-miss"}`} aria-live="polite">
+          <div className="grade-compare__header">
+            <div>
+              <p className="eyebrow">採点</p>
+              <strong>{graded.perfect ? "完全一致" : `${graded.points}/${graded.possible}`}</strong>
+            </div>
+            <span>{graded.accuracy}%</span>
+          </div>
+
+          <div className="grade-compare__columns">
+            <div className="grade-compare__column">
+              <p>今の回答</p>
+              {actualItems.map((item) => renderCompareRow(item, "actual"))}
+            </div>
+
+            <div className="grade-compare__column grade-compare__column--answer">
+              <p>正解</p>
+              {expectedItems.map((item) => renderCompareRow(item, "expected"))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     return (
       <section className="band">
         <div className="band__inner band__inner--practice">
           <div className="surface surface--main">
             <div className={`challenge-card ${challengePhase === "playing" ? "is-playing" : ""} ${challengeTone}`.trim()}>
+              <div className="challenge-card__bubbles" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+              </div>
               <div className="challenge-card__copy">
                 <p className="eyebrow">ORDER CHALLENGE</p>
                 <h2>{currentRecipe.name}</h2>
@@ -1371,6 +1369,8 @@ export default function CocktailStudyApp() {
                       </span>
                     </div>
 
+                    {renderInlineGrading()}
+
                     <div className="mixing-glass-zone__body">
                       {hasSelectedGlass ? (
                         <div className="mixing-glass-media">
@@ -1452,9 +1452,6 @@ export default function CocktailStudyApp() {
                   <button type="submit" className="button button--primary">
                     採点
                   </button>
-                  <button type="button" className="button" onClick={handleShowAnswer}>
-                    {answerVisible ? "答えを隠す" : "答えを表示"}
-                  </button>
                   <button type="button" className="button" onClick={() => selectNextRecipe(true)}>
                     次の注文
                   </button>
@@ -1463,8 +1460,6 @@ export default function CocktailStudyApp() {
                   </button>
                 </div>
               </div>
-
-              {renderResultPanel(currentRecipe, currentDraft)}
             </form>
 
             {draggingChoice && dragPoint ? (
@@ -1854,6 +1849,11 @@ export default function CocktailStudyApp() {
   return (
     <main className="app-shell">
       <header className="hero">
+        <div className="hero__decor" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
         <div className="hero__copy">
           <p className="eyebrow">カクテル暗記アプリ</p>
           <h1>注文を選んで、選択式で作り方を覚える。</h1>
