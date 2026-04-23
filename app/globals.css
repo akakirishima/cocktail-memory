@@ -125,14 +125,14 @@ select:focus-visible {
 
 .app-shell {
   position: relative;
-  width: min(1240px, calc(100% - 32px));
+  width: min(100% - 20px, 560px);
   margin: 0 auto;
-  padding: 28px 0 44px;
+  padding: 16px 0 36px;
 }
 
 .hero {
   position: relative;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .hero__copy {
@@ -143,7 +143,7 @@ select:focus-visible {
     linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 241, 246, 0.96) 54%, rgba(238, 249, 255, 0.94) 100%);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 24px clamp(20px, 3vw, 32px);
+  padding: 20px;
   isolation: isolate;
 }
 
@@ -219,8 +219,8 @@ select:focus-visible {
 .hero__copy h1 {
   position: relative;
   z-index: 1;
-  font-size: clamp(1.9rem, 2.8vw, 3rem);
-  max-width: 24ch;
+  font-size: clamp(1.85rem, 6vw, 2.5rem);
+  max-width: 100%;
   margin-top: 0.45rem;
 }
 
@@ -229,7 +229,7 @@ select:focus-visible {
   z-index: 1;
   margin: 12px 0 16px;
   color: var(--muted);
-  max-width: 58ch;
+  max-width: 42ch;
 }
 
 .eyebrow {
@@ -241,10 +241,12 @@ select:focus-visible {
 }
 
 .tabbar {
-  display: inline-flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
   margin-bottom: 20px;
-  padding: 7px;
+  width: 100%;
+  padding: 6px;
   border: 1px solid rgba(141, 107, 122, 0.16);
   background: rgba(255, 255, 255, 0.7);
   border-radius: var(--radius-pill);
@@ -258,6 +260,7 @@ select:focus-visible {
   color: var(--muted);
   padding: 0.8rem 1rem;
   min-width: 96px;
+  width: 100%;
   border-radius: var(--radius-pill);
   font-weight: 700;
   transition:
@@ -284,7 +287,7 @@ select:focus-visible {
 }
 
 .band__inner--practice {
-  grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+  grid-template-columns: 1fr;
   align-items: start;
 }
 
@@ -319,7 +322,7 @@ select:focus-visible {
 .surface--toolbar,
 .surface--detail,
 .surface--empty {
-  padding: 20px;
+  padding: 16px;
 }
 
 .surface--toolbar,
@@ -335,6 +338,7 @@ select:focus-visible {
   justify-content: space-between;
   gap: 16px;
   align-items: flex-start;
+  flex-direction: column;
 }
 
 .surface__summary {
@@ -345,8 +349,8 @@ select:focus-visible {
 .practice-hero,
 .detail-hero {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 18px;
+  grid-template-columns: 1fr;
+  gap: 14px;
   align-items: stretch;
 }
 
@@ -391,11 +395,11 @@ select:focus-visible {
 }
 
 .recipe-art--hero {
-  min-height: 220px;
+  min-height: 240px;
 }
 
 .recipe-art--detail {
-  min-height: 200px;
+  min-height: 240px;
 }
 
 .recipe-art--answer {
@@ -508,7 +512,7 @@ select:focus-visible {
 
 .select-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
@@ -521,7 +525,7 @@ select:focus-visible {
 
 .slot-row {
   display: grid;
-  grid-template-columns: 40px minmax(0, 1.2fr) minmax(180px, 0.65fr);
+  grid-template-columns: 34px minmax(0, 1fr);
   gap: 10px;
   align-items: end;
 }
@@ -614,6 +618,7 @@ select:focus-visible {
 }
 
 .slot-cell--quantity {
+  grid-column: 2;
   justify-content: center;
 }
 
@@ -631,9 +636,7 @@ select:focus-visible {
 }
 
 .palette-panel {
-  position: sticky;
-  top: 20px;
-  align-self: start;
+  position: static;
 }
 
 .palette-group {
@@ -736,11 +739,11 @@ select:focus-visible {
 .challenge-card {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 14px;
   overflow: hidden;
   margin-bottom: 18px;
-  padding: 22px;
+  padding: 16px;
   border: 1px solid rgba(255, 123, 165, 0.22);
   border-radius: 24px;
   background:
@@ -830,7 +833,7 @@ select:focus-visible {
 }
 
 .challenge-card__copy h2 {
-  font-size: clamp(2.1rem, 4vw, 4rem);
+  font-size: clamp(1.9rem, 8vw, 3rem);
   letter-spacing: 0.01em;
 }
 
@@ -973,7 +976,7 @@ select:focus-visible {
 .mixing-glass-zone {
   position: relative;
   overflow: hidden;
-  min-height: 430px;
+  min-height: auto;
   border: 1px solid rgba(142, 219, 255, 0.4);
   border-radius: var(--radius);
   background:
@@ -981,7 +984,7 @@ select:focus-visible {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.96),
     0 16px 36px rgba(142, 219, 255, 0.12);
-  padding: 18px;
+  padding: 14px;
 }
 
 .mixing-glass-zone::before {
@@ -1021,7 +1024,7 @@ select:focus-visible {
 
 .mixing-glass-zone__body {
   position: relative;
-  min-height: 334px;
+  min-height: auto;
   margin-top: 12px;
 }
 
@@ -1075,7 +1078,7 @@ select:focus-visible {
 
 .grade-compare__columns {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -1160,10 +1163,10 @@ select:focus-visible {
 
 .mixing-glass-media {
   position: absolute;
-  inset: -108px 3% -64px auto;
-  width: min(38%, 390px);
+  inset: -32px -16px auto auto;
+  width: min(44%, 180px);
   pointer-events: none;
-  opacity: 0.24;
+  opacity: 0.12;
 }
 
 .mixing-glass-media__image {
@@ -1179,7 +1182,7 @@ select:focus-visible {
 }
 
 .mix-slot {
-  min-height: 126px;
+  min-height: 96px;
   overflow: hidden;
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
@@ -1189,12 +1192,12 @@ select:focus-visible {
 
 .mix-slot__surface {
   display: grid;
-  grid-template-columns: 58px 104px minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: 42px 72px minmax(0, 1fr);
+  gap: 12px;
   align-items: center;
   width: 100%;
-  min-height: 124px;
-  padding: 18px 20px;
+  min-height: 94px;
+  padding: 12px;
   border: 0;
   background: transparent;
   color: inherit;
@@ -1215,7 +1218,7 @@ select:focus-visible {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 0 20px 18px 182px;
+  padding: 0 12px 12px;
 }
 
 .mix-slot__quantity-chip {
@@ -1227,12 +1230,12 @@ select:focus-visible {
 .mix-slot__number {
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
+  width: 42px;
+  height: 42px;
   border-radius: 20px;
   background: linear-gradient(135deg, rgba(255, 234, 242, 0.96), rgba(238, 249, 255, 0.96));
   color: var(--accent-strong);
-  font-size: 1.5rem;
+  font-size: 1.15rem;
   font-weight: 900;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96);
 }
@@ -1241,8 +1244,8 @@ select:focus-visible {
   position: relative;
   display: grid;
   place-items: center;
-  width: 96px;
-  height: 96px;
+  width: 72px;
+  height: 72px;
   overflow: hidden;
   border-radius: var(--radius);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 241, 246, 0.92));
@@ -1273,24 +1276,24 @@ select:focus-visible {
 }
 
 .mix-slot__body strong {
-  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-size: clamp(1.1rem, 4.8vw, 1.5rem);
   line-height: 1.15;
 }
 
 .mix-slot__body span {
   color: var(--muted);
-  font-size: clamp(1.05rem, 1.45vw, 1.45rem);
+  font-size: clamp(0.92rem, 4vw, 1.1rem);
 }
 
 .mixing-tools {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  grid-template-columns: 1fr;
   gap: 12px;
   align-items: start;
 }
 
 .mixing-tools .ingredient-bench {
-  grid-row: span 2;
+  grid-row: auto;
 }
 
 .mixing-tool-panel {
@@ -1424,7 +1427,7 @@ select:focus-visible {
 
 .action-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
   margin-top: 16px;
 }
@@ -1445,6 +1448,12 @@ select:focus-visible {
     border-color 180ms ease,
     box-shadow 180ms ease,
     background 180ms ease;
+}
+
+.action-row .button,
+.action-row .button--primary,
+.chip-row .filter-chip {
+  width: 100%;
 }
 
 .button--primary {
@@ -1555,7 +1564,7 @@ select:focus-visible {
 
 .answer-media-grid {
   display: grid;
-  grid-template-columns: minmax(220px, 0.95fr) minmax(0, 1.05fr);
+  grid-template-columns: 1fr;
   gap: 14px;
   align-items: start;
 }
@@ -1746,20 +1755,20 @@ select:focus-visible {
 
 .toolbar-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(180px, 0.8fr));
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
 .library-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+  grid-template-columns: 1fr;
   gap: 18px;
   align-items: start;
 }
 
 .recipe-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
@@ -1834,7 +1843,7 @@ select:focus-visible {
 
 .notes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
@@ -1848,7 +1857,7 @@ select:focus-visible {
 
 .note-columns {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -1944,81 +1953,25 @@ select:focus-visible {
 }
 
 @media (max-width: 1080px) {
-  .hero,
-  .band__inner--practice,
-  .library-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .toolbar-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .practice-hero,
-  .detail-hero {
-    grid-template-columns: 1fr;
-  }
-
-  .answer-media-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .challenge-card {
-    grid-template-columns: 1fr;
-  }
-
-  .mixing-tools {
-    grid-template-columns: 1fr;
-  }
-
   .mixing-tools .ingredient-bench {
     grid-row: auto;
-  }
-
-  .palette-panel {
-    position: static;
   }
 }
 
 @media (max-width: 720px) {
   .app-shell {
-    width: min(100% - 18px, 1240px);
+    width: min(100% - 16px, 560px);
     padding-top: 14px;
-  }
-
-  .hero__copy {
-    padding: 20px;
   }
 
   .hero__copy h1 {
     max-width: 100%;
   }
 
-  .surface--main,
-  .surface--side,
-  .surface--toolbar,
-  .surface--detail,
-  .surface--empty {
-    padding: 16px;
-  }
-
   .choice-grid,
   .metric-grid,
-  .note-columns,
   .answer-tile-row {
     grid-template-columns: 1fr;
-  }
-
-  .slot-row {
-    grid-template-columns: 34px minmax(0, 1fr);
-  }
-
-  .slot-cell--quantity {
-    grid-column: 2;
-  }
-
-  .action-row {
-    flex-direction: column;
   }
 
   .button,
@@ -2028,17 +1981,9 @@ select:focus-visible {
     width: 100%;
   }
 
-  .tabbar {
-    width: 100%;
-  }
-
   .palette-row--cards > .choice-card {
     width: 124px;
     min-width: 124px;
-  }
-
-  .challenge-card {
-    padding: 14px;
   }
 
   .challenge-card__copy h2 {
@@ -2071,17 +2016,8 @@ select:focus-visible {
     text-align: left;
   }
 
-  .mixing-glass-zone {
-    min-height: auto;
-    padding: 14px;
-  }
-
   .mixing-glass-zone__header {
     flex-direction: column;
-  }
-
-  .mixing-glass-zone__body {
-    min-height: auto;
   }
 
   .grade-compare {
@@ -2116,45 +2052,12 @@ select:focus-visible {
     white-space: normal;
   }
 
-  .mixing-glass-media {
-    inset: -40px -18px auto auto;
-    width: 210px;
-    height: 280px;
-    opacity: 0.13;
-  }
-
   .mixing-slots {
     gap: 10px;
   }
 
-  .mix-slot {
-    min-height: 94px;
-  }
-
-  .mix-slot__surface {
-    grid-template-columns: 40px 68px minmax(0, 1fr);
-    gap: 12px;
-    min-height: 92px;
-    padding: 12px;
-  }
-
-  .mix-slot__quantities {
-    padding: 0 12px 12px;
-  }
-
   .mix-slot__quantity-chip {
     min-width: 68px;
-  }
-
-  .mix-slot__number {
-    width: 40px;
-    height: 40px;
-    font-size: 1.15rem;
-  }
-
-  .mix-slot__media {
-    width: 68px;
-    height: 68px;
   }
 
   .glass-strip__card,
