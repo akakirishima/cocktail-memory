@@ -4,10 +4,8 @@ import Image from "next/image";
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
   type FormEvent,
-  type PointerEvent,
 } from "react";
 import {
   baseOptions,
@@ -37,7 +35,7 @@ import {
 } from "@/lib/catalog";
 import type { VisualAsset } from "@/lib/visuals";
 
-type TabId = "practice" | "library";
+type TabId = "practice" | "base-quiz" | "library";
 type SourceFilter = "all" | SourceType;
 type ScopeFilter = "all" | "mastered" | "unmastered";
 
@@ -84,6 +82,38 @@ type AttemptResult = {
   details: AttemptDetail[];
 };
 
+type BaseQuizPhase = "ready" | "answered" | "timeout";
+
+type BaseQuizQuestion = {
+  recipeId: string;
+  choices: string[];
+  startedAt: number;
+};
+
+type BaseQuizRecipeStats = {
+  attempts: number;
+  correct: number;
+  wrongs: number;
+};
+
+type BaseQuizHistoryEntry = {
+  recipeId: string;
+  name: string;
+  expectedBase: string;
+  actualBase: string;
+  ok: boolean;
+  at: number;
+};
+
+type BaseQuizState = {
+  attempts: number;
+  correct: number;
+  byRecipe: Record<string, BaseQuizRecipeStats>;
+  history: BaseQuizHistoryEntry[];
+  currentQuestion: BaseQuizQuestion | null;
+  phase: BaseQuizPhase;
+};
+
 type AppState = {
   tab: TabId;
   currentRecipeId: string;
@@ -102,6 +132,7 @@ type AppState = {
     byRecipe: Record<string, RecipeStats>;
     history: HistoryEntry[];
   };
+  baseQuiz: BaseQuizState;
 };
 
 type Feedback = {
@@ -113,6 +144,8 @@ type ChallengePhase = "ready" | "playing" | "graded";
 
 const STORAGE_KEY = "cocktail-memory-v2";
 const CHALLENGE_TIME_LIMIT = 90;
+const BASE_QUIZ_TIME_LIMIT = 15;
+const BASE_QUIZ_AUTO_ADVANCE_DELAY = 900;
 const GENERIC_VISUAL: VisualAsset = {
   label: "未選択",
   imageUrl: "/placeholders/generic.svg",
@@ -230,6 +263,17 @@ function ChoiceChip({
   );
 }
 
+function createDefaultBaseQuizState(): BaseQuizState {
+  return {
+    attempts: 0,
+    correct: 0,
+    byRecipe: {},
+    history: [],
+    currentQuestion: null,
+    phase: "ready",
+  };
+}
+
 function createDefaultState(): AppState {
   const firstRecipeId = catalog.recipes[0]?.id || "";
 
@@ -255,6 +299,7 @@ function createDefaultState(): AppState {
       byRecipe: {},
       history: [],
     },
+    baseQuiz: createDefaultBaseQuizState(),
   };
 }
 
@@ -303,6 +348,14 @@ function mergePersistedState(raw: Partial<AppState> | null | undefined): AppStat
       ...(raw.stats || {}),
       byRecipe: raw.stats?.byRecipe || {},
       history: raw.stats?.history || [],
+    },
+    baseQuiz: {
+      ...fallback.baseQuiz,
+      ...(raw.baseQuiz || {}),
+      byRecipe: raw.baseQuiz?.byRecipe || {},
+      history: raw.baseQuiz?.history || [],
+      currentQuestion: raw.baseQuiz?.currentQuestion || null,
+      phase: raw.baseQuiz?.phase || "ready",
     },
   };
 }
@@ -459,6 +512,39 @@ function recipeCoverage(state: AppState, recipeId: string) {
   return `${stats.perfects}/${stats.attempts}`;
 }
 
+function shuffleList<T>(items: T[]) {
+  const list = [...items];
+  for (let index = list.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [list[index], list[swapIndex]] = [list[swapIndex], list[index]];
+  }
+  return list;
+}
+
+function pickBaseQuizRecipe(deck: Recipe[], avoidId = "") {
+  const pool = deck.length > 1 && avoidId ? deck.filter((recipe) => recipe.id !== avoidId) : deck;
+  if (!pool.length) {
+    return null;
+  }
+  const pickIndex = Math.floor(Math.random() * pool.length);
+  return pool[pickIndex] || null;
+}
+
+function createBaseQuizQuestion(deck: Recipe[], baseValues: string[], avoidId = ""): BaseQuizQuestion | null {
+  const recipe = pickBaseQuizRecipe(deck, avoidId);
+  if (!recipe) {
+    return null;
+  }
+
+  const distractors = shuffleList(baseValues.filter((value) => value !== recipe.base)).slice(0, 3);
+  const choices = shuffleList([recipe.base, ...distractors]).slice(0, 4);
+  return {
+    recipeId: recipe.id,
+    choices,
+    startedAt: Date.now(),
+  };
+}
+
 function recipeMatchesFilters(recipe: Recipe, state: AppState) {
   const query = state.search.trim().toLowerCase();
   const baseOk = state.baseFilter === "all" || recipe.base === state.baseFilter;
@@ -497,23 +583,13 @@ export default function CocktailStudyApp() {
   const [state, setState] = useState<AppState>(() => createDefaultState());
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [activeRowIndex, setActiveRowIndex] = useState(0);
-  const [draggingChoice, setDraggingChoice] = useState<IngredientChoice | null>(null);
-  const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
   const [quantityPromptRowIndex, setQuantityPromptRowIndex] = useState<number | null>(null);
   const [challengePhase, setChallengePhase] = useState<ChallengePhase>("ready");
   const [challengeStartedAt, setChallengeStartedAt] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(CHALLENGE_TIME_LIMIT);
   const [streak, setStreak] = useState(0);
   const [comboMessage, setComboMessage] = useState<string | null>(null);
-  const mixingGlassRef = useRef<HTMLDivElement | null>(null);
-  const suppressNextIngredientClickRef = useRef(false);
-  const dragStartRef = useRef<{
-    choice: IngredientChoice;
-    pointerId: number;
-    x: number;
-    y: number;
-    moved: boolean;
-  } | null>(null);
+  const [baseQuizTimeLeft, setBaseQuizTimeLeft] = useState(BASE_QUIZ_TIME_LIMIT);
 
   useEffect(() => {
     const loaded = loadState();
@@ -552,6 +628,10 @@ export default function CocktailStudyApp() {
       ),
     [state.practiceSources]
   );
+  const baseQuizBaseValues = useMemo(
+    () => baseOptions.map((option) => option.id).filter((id) => id && id !== "all"),
+    []
+  );
 
   useEffect(() => {
     if (!hydrated) return;
@@ -584,6 +664,109 @@ export default function CocktailStudyApp() {
     resetChallenge();
   }, [activeDeck, hydrated]);
 
+  useEffect(() => {
+    if (state.tab !== "base-quiz") {
+      return;
+    }
+
+    if (!activeDeck.length) {
+      return;
+    }
+
+    const question = state.baseQuiz.currentQuestion;
+    const currentQuestionRecipeOk =
+      !!question && activeDeck.some((recipe) => recipe.id === question.recipeId);
+    if (currentQuestionRecipeOk) {
+      return;
+    }
+
+    const nextQuestion = createBaseQuizQuestion(activeDeck, baseQuizBaseValues);
+    if (!nextQuestion) {
+      return;
+    }
+
+    setState((previous) => ({
+      ...previous,
+      baseQuiz: {
+        ...previous.baseQuiz,
+        currentQuestion: nextQuestion,
+        phase: "ready",
+      },
+    }));
+    setBaseQuizTimeLeft(BASE_QUIZ_TIME_LIMIT);
+  }, [
+    activeDeck,
+    baseQuizBaseValues,
+    state.baseQuiz.currentQuestion,
+    state.tab,
+  ]);
+
+  useEffect(() => {
+    if (state.tab !== "base-quiz") {
+      return;
+    }
+    if (state.baseQuiz.phase !== "ready" || !state.baseQuiz.currentQuestion) {
+      return;
+    }
+
+    const startedAt = state.baseQuiz.currentQuestion.startedAt;
+    function syncTimer() {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      setBaseQuizTimeLeft(Math.max(0, BASE_QUIZ_TIME_LIMIT - elapsed));
+    }
+
+    syncTimer();
+    const timerId = window.setInterval(syncTimer, 300);
+    return () => window.clearInterval(timerId);
+  }, [
+    state.baseQuiz.currentQuestion,
+    state.baseQuiz.phase,
+    state.tab,
+  ]);
+
+  useEffect(() => {
+    if (state.tab !== "base-quiz") {
+      return;
+    }
+    if (!state.baseQuiz.currentQuestion || state.baseQuiz.phase !== "ready") {
+      return;
+    }
+    if (baseQuizTimeLeft > 0) {
+      return;
+    }
+
+    handleBaseQuizTimeout();
+  }, [baseQuizTimeLeft, state.baseQuiz.currentQuestion, state.baseQuiz.phase, state.tab]);
+
+  useEffect(() => {
+    if (state.tab !== "base-quiz") {
+      return;
+    }
+    if (state.baseQuiz.phase !== "answered") {
+      return;
+    }
+
+    const question = state.baseQuiz.currentQuestion;
+    const latest = state.baseQuiz.history[0];
+    if (!question || !latest) {
+      return;
+    }
+    const isCurrentResult = latest.recipeId === question.recipeId && latest.at >= question.startedAt;
+    if (!isCurrentResult || !latest.ok) {
+      return;
+    }
+
+    const timerId = window.setTimeout(() => {
+      goToNextBaseQuizQuestion(question.recipeId);
+    }, BASE_QUIZ_AUTO_ADVANCE_DELAY);
+    return () => window.clearTimeout(timerId);
+  }, [
+    state.baseQuiz.currentQuestion,
+    state.baseQuiz.history,
+    state.baseQuiz.phase,
+    state.tab,
+  ]);
+
   const currentRecipe = useMemo(() => {
     return recipeById.get(state.currentRecipeId) || activeDeck[0] || catalog.recipes[0] || null;
   }, [activeDeck, state.currentRecipeId]);
@@ -605,9 +788,6 @@ export default function CocktailStudyApp() {
 
     setActiveRowIndex(firstIncompleteRowIndex(currentDraft));
     setQuantityPromptRowIndex(null);
-    setDraggingChoice(null);
-    setDragPoint(null);
-    dragStartRef.current = null;
     resetChallenge();
   }, [currentRecipe?.id]);
 
@@ -716,20 +896,6 @@ export default function CocktailStudyApp() {
     return fallbackIndex;
   }
 
-  function isPointInsideMixingGlass(point: { x: number; y: number }) {
-    const rect = mixingGlassRef.current?.getBoundingClientRect();
-    if (!rect) {
-      return false;
-    }
-
-    return (
-      point.x >= rect.left &&
-      point.x <= rect.right &&
-      point.y >= rect.top &&
-      point.y <= rect.bottom
-    );
-  }
-
   function pourIngredient(recipe: Recipe, choice: IngredientChoice, targetIndex?: number) {
     const draft = normalizeDraftForRecipe(recipe, state.drafts[recipe.id]);
     if (!draft.rows.length) {
@@ -755,6 +921,41 @@ export default function CocktailStudyApp() {
     persistDraft(recipe, nextDraft);
   }
 
+  function clearSelectedIngredient(recipe: Recipe, choice: IngredientChoice) {
+    const draft = normalizeDraftForRecipe(recipe, state.drafts[recipe.id]);
+    if (!draft.rows.length) {
+      return false;
+    }
+
+    const promptIndex =
+      typeof quantityPromptRowIndex === "number"
+        ? Math.max(0, Math.min(quantityPromptRowIndex, draft.rows.length - 1))
+        : -1;
+    const activeIndex = Math.max(0, Math.min(activeRowIndex, draft.rows.length - 1));
+    const index =
+      promptIndex !== -1 && draft.rows[promptIndex]?.ingredientId === choice.id
+        ? promptIndex
+        : draft.rows[activeIndex]?.ingredientId === choice.id
+          ? activeIndex
+          : -1;
+
+    if (index === -1) {
+      return false;
+    }
+
+    const nextDraft = {
+      ...draft,
+      rows: draft.rows.map((row, rowIndex) =>
+        rowIndex === index ? { ...row, ingredientId: "", quantityId: "" } : row
+      ),
+    };
+
+    setActiveRowIndex(index);
+    setQuantityPromptRowIndex(null);
+    persistDraft(recipe, nextDraft);
+    return true;
+  }
+
   function chooseQuantity(recipe: Recipe, quantityId: string, targetIndex?: number) {
     const draft = normalizeDraftForRecipe(recipe, state.drafts[recipe.id]);
     if (!draft.rows.length) {
@@ -778,76 +979,6 @@ export default function CocktailStudyApp() {
     setActiveRowIndex(rowIndexAfterQuantity(nextRows, index));
   }
 
-  function clearDragging(pointerId?: number, target?: EventTarget & Element) {
-    if (
-      typeof pointerId === "number" &&
-      target instanceof Element &&
-      "hasPointerCapture" in target &&
-      target.hasPointerCapture(pointerId)
-    ) {
-      target.releasePointerCapture(pointerId);
-    }
-
-    dragStartRef.current = null;
-    setDraggingChoice(null);
-    setDragPoint(null);
-  }
-
-  function handleIngredientPointerDown(
-    choice: IngredientChoice,
-    event: PointerEvent<HTMLButtonElement>
-  ) {
-    if (event.pointerType === "mouse" && event.button !== 0) {
-      return;
-    }
-
-    dragStartRef.current = {
-      choice,
-      pointerId: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-      moved: false,
-    };
-    setDraggingChoice(choice);
-    setDragPoint({ x: event.clientX, y: event.clientY });
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-
-  function handleIngredientPointerMove(event: PointerEvent<HTMLButtonElement>) {
-    const dragStart = dragStartRef.current;
-    if (!dragStart || dragStart.pointerId !== event.pointerId) {
-      return;
-    }
-
-    const distance = Math.hypot(event.clientX - dragStart.x, event.clientY - dragStart.y);
-    if (distance > 8) {
-      dragStart.moved = true;
-      event.preventDefault();
-    }
-
-    setDragPoint({ x: event.clientX, y: event.clientY });
-  }
-
-  function handleIngredientPointerUp(event: PointerEvent<HTMLButtonElement>) {
-    const dragStart = dragStartRef.current;
-    if (!dragStart || dragStart.pointerId !== event.pointerId) {
-      return;
-    }
-
-    const point = { x: event.clientX, y: event.clientY };
-    const shouldPour = dragStart.moved && isPointInsideMixingGlass(point);
-    if (currentRecipe && shouldPour) {
-      pourIngredient(currentRecipe, dragStart.choice);
-    }
-
-    suppressNextIngredientClickRef.current = dragStart.moved;
-    clearDragging(event.pointerId, event.currentTarget);
-  }
-
-  function handleIngredientPointerCancel(event: PointerEvent<HTMLButtonElement>) {
-    clearDragging(event.pointerId, event.currentTarget);
-  }
-
   function handleChallengeStart() {
     setFeedback(null);
     startChallenge();
@@ -866,6 +997,90 @@ export default function CocktailStudyApp() {
     }));
     setFeedback(null);
     resetChallenge();
+  }
+
+  function goToNextBaseQuizQuestion(avoidRecipeId = "") {
+    if (!activeDeck.length) {
+      return;
+    }
+    const nextQuestion = createBaseQuizQuestion(activeDeck, baseQuizBaseValues, avoidRecipeId);
+    if (!nextQuestion) {
+      return;
+    }
+
+    setState((previous) => ({
+      ...previous,
+      baseQuiz: {
+        ...previous.baseQuiz,
+        currentQuestion: nextQuestion,
+        phase: "ready",
+      },
+    }));
+    setBaseQuizTimeLeft(BASE_QUIZ_TIME_LIMIT);
+  }
+
+  function recordBaseQuizResult(question: BaseQuizQuestion, actualBase: string, phase: BaseQuizPhase) {
+    const recipe = recipeById.get(question.recipeId);
+    if (!recipe) {
+      return;
+    }
+
+    const expectedBase = recipe.base;
+    const ok = phase !== "timeout" && actualBase === expectedBase;
+
+    setState((previous) => {
+      const currentBaseQuiz = previous.baseQuiz;
+      const previousRecipeStats = currentBaseQuiz.byRecipe[recipe.id] || {
+        attempts: 0,
+        correct: 0,
+        wrongs: 0,
+      };
+
+      return {
+        ...previous,
+        baseQuiz: {
+          ...currentBaseQuiz,
+          attempts: currentBaseQuiz.attempts + 1,
+          correct: currentBaseQuiz.correct + (ok ? 1 : 0),
+          byRecipe: {
+            ...currentBaseQuiz.byRecipe,
+            [recipe.id]: {
+              attempts: previousRecipeStats.attempts + 1,
+              correct: previousRecipeStats.correct + (ok ? 1 : 0),
+              wrongs: previousRecipeStats.wrongs + (ok ? 0 : 1),
+            },
+          },
+          history: [
+            {
+              recipeId: recipe.id,
+              name: recipe.name,
+              expectedBase,
+              actualBase,
+              ok,
+              at: Date.now(),
+            },
+            ...currentBaseQuiz.history,
+          ].slice(0, 40),
+          phase,
+        },
+      };
+    });
+  }
+
+  function answerBaseQuizQuestion(answerBase: string) {
+    const question = state.baseQuiz.currentQuestion;
+    if (!question || state.baseQuiz.phase !== "ready") {
+      return;
+    }
+    recordBaseQuizResult(question, answerBase, "answered");
+  }
+
+  function handleBaseQuizTimeout() {
+    const question = state.baseQuiz.currentQuestion;
+    if (!question || state.baseQuiz.phase !== "ready") {
+      return;
+    }
+    recordBaseQuizResult(question, "TIMEOUT", "timeout");
   }
 
   function togglePracticeSource(source: SourceType) {
@@ -1025,13 +1240,27 @@ export default function CocktailStudyApp() {
     const timerPercent = Math.max(0, Math.min(100, (timeLeft / CHALLENGE_TIME_LIMIT) * 100));
     const timerTone = timeLeft <= 10 ? "is-critical" : timeLeft <= 30 ? "is-warning" : "";
     const challengeTone = graded ? (graded.perfect ? "is-perfect" : "is-miss") : "";
+    const quantityTargetIndex =
+      typeof quantityPromptRowIndex === "number" &&
+      quantityPromptRowIndex >= 0 &&
+      quantityPromptRowIndex < currentDraft.rows.length
+        ? quantityPromptRowIndex
+        : null;
+    const quantityTargetRow =
+      typeof quantityTargetIndex === "number" ? currentDraft.rows[quantityTargetIndex] || null : null;
+    const quantityTargetIngredient = quantityTargetRow?.ingredientId
+      ? ingredientChoiceById.get(quantityTargetRow.ingredientId) || null
+      : null;
+    const quantityTargetChoice =
+      quantityTargetRow?.quantityId
+        ? quantityOptions.find((choice) => choice.id === quantityTargetRow.quantityId) || null
+        : null;
 
     function renderPourSlot(row: PracticeRow, index: number) {
       const ingredientChoice = ingredientChoiceById.get(row.ingredientId) || null;
       const quantityChoice = quantityOptions.find((choice) => choice.id === row.quantityId) || null;
       const isActive = index === activeRowIndex;
       const needsQuantity = quantityPromptRowIndex === index && !!ingredientChoice && !quantityChoice;
-      const showQuantityChoices = !!ingredientChoice && (isActive || needsQuantity || !quantityChoice);
 
       return (
         <article
@@ -1065,81 +1294,76 @@ export default function CocktailStudyApp() {
               <span>{quantityChoice?.label || "量を選択"}</span>
             </span>
           </button>
-
-          {showQuantityChoices ? (
-            <div className="mix-slot__quantities" aria-label={`行 ${index + 1} の量を選ぶ`}>
-              {quantityOptions.map((choice) => (
-                <ChoiceChip
-                  key={choice.id || "blank"}
-                  label={choice.label}
-                  active={quantityChoice?.id === choice.id}
-                  onClick={() => chooseQuantity(currentRecipe, choice.id, index)}
-                  className="choice-chip--quantity mix-slot__quantity-chip"
-                />
-              ))}
-            </div>
-          ) : null}
         </article>
       );
     }
 
     function renderIngredientChoice(choice: IngredientChoice) {
       const active = activeIngredientChoice?.id === choice.id;
-      const isDragging = draggingChoice?.id === choice.id;
-      const className = `${choice.display === "card" ? "pour-card" : "pour-chip"} ${
-        active ? "is-active" : ""
-      } ${isDragging ? "is-dragging" : ""}`.trim();
-      const pointerHandlers = {
-        onPointerDown: (event: PointerEvent<HTMLButtonElement>) =>
-          handleIngredientPointerDown(choice, event),
-        onPointerMove: handleIngredientPointerMove,
-        onPointerUp: handleIngredientPointerUp,
-        onPointerCancel: handleIngredientPointerCancel,
-        onClick: () => {
-          if (suppressNextIngredientClickRef.current) {
-            suppressNextIngredientClickRef.current = false;
-            return;
-          }
-          pourIngredient(currentRecipe, choice);
-        },
+      const handleClick = () => {
+        if (clearSelectedIngredient(currentRecipe, choice)) {
+          return;
+        }
+        pourIngredient(currentRecipe, choice);
       };
 
       if (choice.display === "card") {
         return (
-          <button
+          <ChoiceCard
             key={choice.id}
-            type="button"
-            className={className}
-            aria-pressed={active}
-            aria-label={`${choice.label}をテーブルに入れる`}
-            {...pointerHandlers}
-          >
-            <span className="pour-card__media">
-              {choice.visual ? (
-                <ChoiceMedia
-                  visual={choice.visual}
-                  alt={choice.label}
-                  className="pour-card__image"
-                  sizes="150px"
-                />
-              ) : null}
-            </span>
-            <span className="pour-card__label">{choice.label}</span>
-          </button>
+            label={choice.label}
+            visual={choice.visual}
+            active={active}
+            onClick={handleClick}
+            className="pour-card"
+            ariaLabel={active ? `${choice.label}の選択を解除する` : `${choice.label}をテーブルに入れる`}
+          />
         );
       }
 
       return (
-        <button
+        <ChoiceChip
           key={choice.id}
-          type="button"
-          className={className}
-          aria-pressed={active}
-          aria-label={`${choice.label}をテーブルに入れる`}
-          {...pointerHandlers}
+          label={choice.label}
+          active={active}
+          onClick={handleClick}
+          className="pour-chip"
+          ariaLabel={active ? `${choice.label}の選択を解除する` : `${choice.label}をテーブルに入れる`}
+        />
+      );
+    }
+
+    function renderIngredientQuantityDock(group: (typeof ingredientGroups)[number]) {
+      if (
+        typeof quantityTargetIndex !== "number" ||
+        !quantityTargetIngredient ||
+        !group.choices.some((choice) => choice.id === quantityTargetIngredient.id)
+      ) {
+        return null;
+      }
+
+      return (
+        <div
+          className="ingredient-bench__quantity-dock"
+          aria-label={`${quantityTargetIngredient.label}の量を選ぶ`}
         >
-          {choice.label}
-        </button>
+          <div className="ingredient-bench__quantity-summary">
+            <span className="eyebrow">量</span>
+            <strong>{quantityTargetIngredient.label}</strong>
+            <span>行 {quantityTargetIndex + 1}</span>
+          </div>
+          <div className="ingredient-bench__quantity-row">
+            {quantityOptions.map((choice) => (
+              <ChoiceChip
+                key={choice.id || "blank"}
+                label={choice.label}
+                active={quantityTargetChoice?.id === choice.id}
+                onClick={() => chooseQuantity(currentRecipe, choice.id, quantityTargetIndex)}
+                className="choice-chip--quantity ingredient-bench__quantity-chip"
+              />
+            ))}
+          </div>
+        </div>
       );
     }
 
@@ -1350,19 +1574,11 @@ export default function CocktailStudyApp() {
                 </section>
 
                 <div className="mixing-layout">
-                  <section
-                    ref={mixingGlassRef}
-                    className={`mixing-glass-zone ${draggingChoice ? "is-ready" : ""} ${challengeTone}`.trim()}
-                    aria-label="材料を並べるテーブル"
-                  >
+                  <section className={`mixing-glass-zone ${challengeTone}`.trim()} aria-label="材料を並べるテーブル">
                     <div className="mixing-glass-zone__header">
                       <div>
                         <p className="eyebrow">テーブルに並べる</p>
-                        <p className="helper">
-                          {draggingChoice
-                            ? `${draggingChoice.label}を行の上で離す`
-                            : "選んだ材料は空いている行へ順番に入ります"}
-                        </p>
+                        <p className="helper">選んだ材料は空いている行へ順番に入ります</p>
                       </div>
                       <span className="badge badge--amber">
                         {completedRows}/{currentRecipe.ingredients.length}
@@ -1403,20 +1619,26 @@ export default function CocktailStudyApp() {
                             : `次は行 ${nextEmptyIngredientIndex + 1} に入ります`}
                         </span>
                       </div>
-                      {ingredientGroups.map((group) => (
-                        <div key={group.group} className="ingredient-bench__group">
-                          <p className="mini-title">{group.group}</p>
-                          <div
-                            className={`ingredient-bench__row ${
-                              group.choices.some((choice) => choice.display === "card")
-                                ? "ingredient-bench__row--cards"
-                                : "ingredient-bench__row--chips"
-                            }`}
-                          >
-                            {group.choices.map((choice) => renderIngredientChoice(choice))}
+                      {ingredientGroups.map((group) => {
+                        const useNativeScroller =
+                          group.group === "スピリッツ" ||
+                          group.group === "リキュール" ||
+                          group.group === "その他" ||
+                          group.group === "フルーツ";
+                        const rowClassName = useNativeScroller
+                          ? "ingredient-bench__row ingredient-bench__scroller"
+                          : "ingredient-bench__row ingredient-bench__row--chips";
+
+                        return (
+                          <div key={group.group} className="ingredient-bench__group">
+                            <p className="mini-title">{group.group}</p>
+                            <div className={rowClassName}>
+                              {group.choices.map((choice) => renderIngredientChoice(choice))}
+                            </div>
+                            {renderIngredientQuantityDock(group)}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </section>
 
                     <div className="mixing-tool-panel">
@@ -1461,26 +1683,6 @@ export default function CocktailStudyApp() {
                 </div>
               </div>
             </form>
-
-            {draggingChoice && dragPoint ? (
-              <div
-                className="drag-preview"
-                style={{ left: dragPoint.x, top: dragPoint.y }}
-                aria-hidden="true"
-              >
-                {draggingChoice.visual ? (
-                  <span className="drag-preview__media">
-                    <ChoiceMedia
-                      visual={draggingChoice.visual}
-                      alt={draggingChoice.label}
-                      className="drag-preview__image"
-                      sizes="96px"
-                    />
-                  </span>
-                ) : null}
-                <span>{draggingChoice.label}</span>
-              </div>
-            ) : null}
           </div>
 
           <aside className="surface surface--side palette-panel">
@@ -1556,6 +1758,175 @@ export default function CocktailStudyApp() {
                       <span>
                         {DATE_FORMAT.format(new Date(entry.at))} / {entry.points}/{entry.possible} /{" "}
                         {entry.perfect ? "完全一致" : "未達"}
+                      </span>
+                    </article>
+                  ))
+                ) : (
+                  <p className="helper">まだ出題履歴がありません。</p>
+                )}
+              </div>
+            </section>
+          </aside>
+        </div>
+      </section>
+    );
+  }
+
+  function renderBaseQuizTab() {
+    const attempts = state.baseQuiz.attempts;
+    const correct = state.baseQuiz.correct;
+    const accuracy = attempts ? Math.round((correct / attempts) * 100) : 0;
+    const question = state.baseQuiz.currentQuestion;
+    const questionRecipe = question ? recipeById.get(question.recipeId) || null : null;
+    const latestResult = question
+      ? state.baseQuiz.history.find(
+          (entry) => entry.recipeId === question.recipeId && entry.at >= question.startedAt
+        ) || null
+      : null;
+    const isReady = state.baseQuiz.phase === "ready";
+    const isTimeout = state.baseQuiz.phase === "timeout";
+    const isCorrect = !!latestResult?.ok;
+    const showManualNext = isTimeout || (!!latestResult && !latestResult.ok);
+    const toneClass = isTimeout
+      ? "is-timeout"
+      : latestResult
+        ? latestResult.ok
+          ? "is-correct"
+          : "is-wrong"
+        : "";
+    const statusText = isTimeout
+      ? `時間切れ。正解は「${latestResult?.expectedBase || questionRecipe?.base || "不明"}」`
+      : latestResult
+        ? latestResult.ok
+          ? "正解！次の問題へ移動します"
+          : `不正解。正解は「${latestResult.expectedBase}」`
+        : "カクテル名を見てベースを選んでください";
+
+    if (!activeDeck.length) {
+      return (
+        <section className="band">
+          <div className="band__inner">
+            <div className="surface">
+              <p className="helper">出題できるレシピがありません。出題範囲を見直してください。</p>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    return (
+      <section className="band">
+        <div className="band__inner band__inner--practice">
+          <div className="surface surface--main">
+            <section className={`base-quiz ${toneClass}`.trim()} aria-live="polite">
+              <div className="base-quiz__header">
+                <div>
+                  <p className="eyebrow">BASE QUIZ</p>
+                  <h2>{questionRecipe?.name || "問題を準備中"}</h2>
+                  <p className="surface__summary">このカクテルのベース（お酒の種類）を選んでください。</p>
+                </div>
+                <div className="base-quiz__timer">
+                  <span>TIME</span>
+                  <strong>{baseQuizTimeLeft}s</strong>
+                </div>
+              </div>
+
+              <div className="base-quiz__scoreline">
+                <span>挑戦 {attempts}</span>
+                <span>正解 {correct}</span>
+                <span>正答率 {accuracy}%</span>
+              </div>
+
+              <div className="base-quiz__choices">
+                {(question?.choices || []).map((choice) => {
+                  const showCorrect = !isReady && questionRecipe?.base === choice;
+                  const showWrong =
+                    !isReady &&
+                    latestResult &&
+                    !latestResult.ok &&
+                    latestResult.actualBase === choice &&
+                    latestResult.actualBase !== "TIMEOUT";
+                  const className = `base-quiz__choice ${showCorrect ? "is-correct" : ""} ${showWrong ? "is-wrong" : ""}`.trim();
+                  return (
+                    <button
+                      key={`${question?.recipeId || "pending"}-${choice}`}
+                      type="button"
+                      className={className}
+                      onClick={() => answerBaseQuizQuestion(choice)}
+                      disabled={!isReady}
+                    >
+                      {choice}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className={`base-quiz__status ${toneClass}`.trim()}>{statusText}</p>
+
+              {showManualNext ? (
+                <button
+                  type="button"
+                  className="button button--primary"
+                  onClick={() => goToNextBaseQuizQuestion(question?.recipeId || "")}
+                >
+                  次の問題
+                </button>
+              ) : null}
+
+              {isCorrect && !showManualNext ? <p className="helper">正解時は自動で次の問題に進みます。</p> : null}
+            </section>
+          </div>
+
+          <aside className="surface surface--side palette-panel">
+            <section className="mini-panel">
+              <p className="eyebrow">出題範囲</p>
+              <div className="chip-row">
+                {practiceSourceOptions.map((source) => (
+                  <button
+                    key={source.id}
+                    type="button"
+                    className={`filter-chip ${state.practiceSources[source.id] ? "is-active" : ""}`}
+                    onClick={() => togglePracticeSource(source.id)}
+                    aria-pressed={state.practiceSources[source.id]}
+                  >
+                    {source.label}
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="mini-panel">
+              <p className="eyebrow">種類当て統計</p>
+              <div className="metric-grid">
+                <article className="metric-card">
+                  <span>挑戦</span>
+                  <strong>{attempts}</strong>
+                </article>
+                <article className="metric-card">
+                  <span>正解</span>
+                  <strong>{correct}</strong>
+                </article>
+                <article className="metric-card">
+                  <span>正答率</span>
+                  <strong>{accuracy}%</strong>
+                </article>
+                <article className="metric-card">
+                  <span>履歴</span>
+                  <strong>{state.baseQuiz.history.length}</strong>
+                </article>
+              </div>
+            </section>
+
+            <section className="mini-panel">
+              <p className="eyebrow">最近の結果</p>
+              <div className="stack">
+                {state.baseQuiz.history.length ? (
+                  state.baseQuiz.history.slice(0, 8).map((entry) => (
+                    <article className="history-card" key={`${entry.recipeId}-${entry.at}`}>
+                      <strong>{entry.name}</strong>
+                      <span>
+                        {entry.ok ? "正解" : "不正解"} / 正解 {entry.expectedBase} / 回答{" "}
+                        {entry.actualBase === "TIMEOUT" ? "時間切れ" : entry.actualBase}
                       </span>
                     </article>
                   ))
@@ -1880,6 +2251,14 @@ export default function CocktailStudyApp() {
         </button>
         <button
           type="button"
+          className={`tab ${state.tab === "base-quiz" ? "is-active" : ""}`}
+          onClick={() => setState((previous) => ({ ...previous, tab: "base-quiz" }))}
+          aria-pressed={state.tab === "base-quiz"}
+        >
+          種類当て
+        </button>
+        <button
+          type="button"
           className={`tab ${state.tab === "library" ? "is-active" : ""}`}
           onClick={() => setState((previous) => ({ ...previous, tab: "library" }))}
           aria-pressed={state.tab === "library"}
@@ -1888,7 +2267,11 @@ export default function CocktailStudyApp() {
         </button>
       </nav>
 
-      {state.tab === "practice" ? renderPracticeTab() : renderLibraryTab()}
+      {state.tab === "practice"
+        ? renderPracticeTab()
+        : state.tab === "base-quiz"
+          ? renderBaseQuizTab()
+          : renderLibraryTab()}
     </main>
   );
 }

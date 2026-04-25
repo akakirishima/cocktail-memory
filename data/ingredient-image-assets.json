@@ -88,6 +88,30 @@
     "credit": "Kirin official product page"
   },
   {
+    "label": "ジン / Gin",
+    "keys": ["ジン", "Gin", "GIN"],
+    "fileName": "gin-local.png",
+    "sourceUrl": "/ingredients/gin-local.png",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "ラム / Rum",
+    "keys": ["ラム", "Rum", "RUM"],
+    "fileName": "rum-local.png",
+    "sourceUrl": "/ingredients/rum-local.png",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
+    "label": "テキーラ / Tequila",
+    "keys": ["テキーラ", "Tequila", "TEQUILA"],
+    "fileName": "tequila-local.png",
+    "sourceUrl": "/ingredients/tequila-local.png",
+    "credit": "User-provided local image",
+    "localOnly": true
+  },
+  {
     "label": "ボルス パルフェタムール / Bols Parfait Amour",
     "keys": ["ボルス パルフェタムール", "Bols Parfait Amour", "Parfait Amour"],
     "fileName": "bols-parfait-amour.webp",

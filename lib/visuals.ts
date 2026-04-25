@@ -193,8 +193,26 @@ const genericIngredientVisuals: Record<string, VisualAsset> = {
   ),
 };
 
+const otherIngredientVisuals: Record<string, VisualAsset> = {
+  ウーロン: makeLocalVisual("ウーロン", "/placeholders/other-ingredient.svg"),
+  オレンジジュース: makeLocalVisual("オレンジジュース", "/placeholders/other-ingredient.svg"),
+  グレフルジュース: makeLocalVisual("グレフルジュース", "/placeholders/other-ingredient.svg"),
+  ホワイトグレフル: makeLocalVisual("ホワイトグレフル", "/placeholders/other-ingredient.svg"),
+  コーヒー: makeLocalVisual("コーヒー", "/placeholders/other-ingredient.svg"),
+  "コーヒー(アイス)": makeLocalVisual("コーヒー(アイス)", "/placeholders/other-ingredient.svg"),
+  "コーヒー(冷)": makeLocalVisual("コーヒー(冷)", "/placeholders/other-ingredient.svg"),
+  "コーヒー(温)": makeLocalVisual("コーヒー(温)", "/placeholders/other-ingredient.svg"),
+  コーラ: makeLocalVisual("コーラ", "/placeholders/other-ingredient.svg"),
+  ジンジャーエール: makeLocalVisual("ジンジャーエール", "/placeholders/other-ingredient.svg"),
+  ソーダ: makeLocalVisual("ソーダ", "/placeholders/other-ingredient.svg"),
+  トニック: makeLocalVisual("トニック", "/placeholders/other-ingredient.svg"),
+  ミルク: makeLocalVisual("ミルク", "/placeholders/other-ingredient.svg"),
+  水: makeLocalVisual("水", "/placeholders/other-ingredient.svg"),
+};
+
 export const ingredientVisuals: Record<string, VisualAsset> = {
   ...genericIngredientVisuals,
+  ...otherIngredientVisuals,
   ...packshotIngredientVisuals,
 };
 

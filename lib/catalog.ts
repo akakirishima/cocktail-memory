@@ -159,9 +159,8 @@ const ingredientGroupOrder = [
   "スピリッツ",
   "リキュール",
   "ワイン",
-  "ミキサー",
-  "フルーツ",
   "その他",
+  "フルーツ",
 ];
 
 const spiritSet = new Set(["ウォッカ", "ジン", "ラム", "テキーラ", "ウイスキー"]);
@@ -310,7 +309,7 @@ function classifyIngredient(label: string) {
   if (spiritSet.has(label)) return "スピリッツ";
   if (liqueurSet.has(label)) return "リキュール";
   if (wineSet.has(label)) return "ワイン";
-  if (mixerSet.has(label)) return "ミキサー";
+  if (mixerSet.has(label)) return "その他";
   if (fruitSet.has(label)) return "フルーツ";
   return "その他";
 }
@@ -320,7 +319,9 @@ function visualForRecipeGlass(glass: string) {
 }
 
 function ingredientDisplayMode(group: string): IngredientChoice["display"] {
-  return group === "スピリッツ" || group === "リキュール" || group === "ワイン" ? "card" : "chip";
+  return group === "スピリッツ" || group === "リキュール" || group === "ワイン" || group === "その他"
+    ? "card"
+    : "chip";
 }
 
 function buildSearchText(recipe: Omit<Recipe, "searchText">) {
