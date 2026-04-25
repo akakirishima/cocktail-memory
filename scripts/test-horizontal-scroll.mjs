@@ -123,6 +123,18 @@ async function runHorizontalScrollChecks(page) {
   assert.ok(fruit.after > fruit.before, "フルーツ: スクロール位置が変化しない");
   assert.ok(glass.after > glass.before, "グラス: スクロール位置が変化しない");
 
+  const baseFilter = page.locator(".chip-row--base-filter").first();
+  await baseFilter.getByRole("button", { name: "ウォッカ" }).click();
+  await page.waitForFunction(() =>
+    document.querySelector(".challenge-card__copy .surface__summary")?.textContent?.includes("ウォッカベース")
+  );
+  assert.equal(
+    await baseFilter.getByRole("button", { name: "ウォッカ" }).getAttribute("aria-pressed"),
+    "true",
+    "練習ベースフィルタが選択状態になっていない"
+  );
+  await baseFilter.getByRole("button", { name: "全部" }).click();
+
   const firstSpiritsCard = spiritsRow.locator(".pour-card").first();
   const pickedLabel = (await firstSpiritsCard.locator(".choice-card__label").textContent() || "").trim();
   assert.ok(pickedLabel.length > 0, "スピリッツカードのラベル取得に失敗");

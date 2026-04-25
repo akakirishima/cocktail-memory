@@ -119,6 +119,7 @@ type AppState = {
   currentRecipeId: string;
   search: string;
   baseFilter: string;
+  practiceBaseFilter: string;
   sourceFilter: SourceFilter;
   scopeFilter: ScopeFilter;
   practiceSources: Record<SourceType, boolean>;
@@ -282,6 +283,7 @@ function createDefaultState(): AppState {
     currentRecipeId: firstRecipeId,
     search: "",
     baseFilter: "all",
+    practiceBaseFilter: "all",
     sourceFilter: "all",
     scopeFilter: "all",
     practiceSources: {
@@ -341,6 +343,7 @@ function mergePersistedState(raw: Partial<AppState> | null | undefined): AppStat
       ...fallback.practiceSources,
       ...(raw.practiceSources || {}),
     },
+    practiceBaseFilter: raw.practiceBaseFilter || fallback.practiceBaseFilter,
     drafts: raw.drafts || {},
     mastered: raw.mastered || {},
     stats: {
@@ -624,9 +627,10 @@ export default function CocktailStudyApp() {
       catalog.recipes.filter(
         (recipe) =>
           recipe.practice &&
+          (state.practiceBaseFilter === "all" || recipe.base === state.practiceBaseFilter) &&
           recipe.sources.some((source) => state.practiceSources[source.type])
       ),
-    [state.practiceSources]
+    [state.practiceBaseFilter, state.practiceSources]
   );
   const baseQuizBaseValues = useMemo(
     () => baseOptions.map((option) => option.id).filter((id) => id && id !== "all"),
@@ -1101,6 +1105,15 @@ export default function CocktailStudyApp() {
     });
   }
 
+  function setPracticeBaseFilter(base: string) {
+    setState((previous) => ({
+      ...previous,
+      practiceBaseFilter: base,
+    }));
+    setFeedback(null);
+    resetChallenge();
+  }
+
   function toggleMastered(recipe: Recipe) {
     setState((previous) => ({
       ...previous,
@@ -1202,6 +1215,31 @@ export default function CocktailStudyApp() {
           sizes="(max-width: 900px) 100vw, 480px"
           priority={className.includes("hero")}
         />
+      </div>
+    );
+  }
+
+  function baseFilterTagLabel(option: (typeof baseOptions)[number]) {
+    if (option.id === "all") {
+      return "全部";
+    }
+    return option.label.replace(/ベース等$/, "").replace(/ベース$/, "");
+  }
+
+  function renderPracticeBaseFilterTags(className = "") {
+    return (
+      <div className={`chip-row chip-row--base-filter ${className}`.trim()} aria-label="出題ベース">
+        {baseOptions.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            className={`filter-chip ${state.practiceBaseFilter === option.id ? "is-active" : ""}`}
+            onClick={() => setPracticeBaseFilter(option.id)}
+            aria-pressed={state.practiceBaseFilter === option.id}
+          >
+            {baseFilterTagLabel(option)}
+          </button>
+        ))}
       </div>
     );
   }
@@ -2231,12 +2269,7 @@ export default function CocktailStudyApp() {
           <p className="hero__lede">
             材料、量、グラス、作り方、UP をすべて候補から選んで採点します。手書きメモの赤字や切れ端も残しています。
           </p>
-          <div className="badge-row">
-            <span className="chip">レシピ {catalog.recipes.length}件</span>
-            <span className="chip">正答率 {totalAccuracy}%</span>
-            <span className="chip">習得済 {masteredCount}件</span>
-            <span className="chip">履歴 {state.stats.history.length}件</span>
-          </div>
+          <div className="hero__scope">{renderPracticeBaseFilterTags("chip-row--hero-scope")}</div>
         </div>
       </header>
 

@@ -238,6 +238,12 @@ select:focus-visible {
   max-width: 42ch;
 }
 
+.hero__scope {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+}
+
 .eyebrow {
   margin: 0;
   letter-spacing: 0.14em;
@@ -1640,6 +1646,28 @@ select:focus-visible {
 .action-row .button--primary,
 .chip-row .filter-chip {
   width: 100%;
+}
+
+.chip-row--base-filter .filter-chip {
+  flex: 1 1 calc(50% - 8px);
+  min-width: 132px;
+  width: auto;
+  padding-inline: 0.78rem;
+}
+
+.chip-row--hero-scope .filter-chip {
+  flex: 0 0 auto;
+  min-width: 64px;
+  width: auto;
+  min-height: 40px;
+  padding: 0.64rem 0.92rem;
+}
+
+.chip-row--hero-scope .filter-chip.is-active {
+  border-color: var(--accent-strong);
+  box-shadow:
+    0 0 0 3px rgba(255, 95, 147, 0.16),
+    0 12px 24px rgba(255, 123, 165, 0.15);
 }
 
 .button--primary {
