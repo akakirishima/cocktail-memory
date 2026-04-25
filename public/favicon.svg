@@ -1,5 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Cocktail">
-  <rect width="64" height="64" rx="12" fill="#101512"/>
-  <path d="M18 12h28L34 30v15h10v5H20v-5h10V30L18 12Z" fill="#c8f36b"/>
-  <path d="M22 16h20l-8 10h-4l-8-10Z" fill="#ffb15c"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="カクテル暗記アプリ">
+  <defs>
+    <linearGradient id="bg" x1="8" x2="56" y1="6" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff6fa"/>
+      <stop offset=".56" stop-color="#ffe8f1"/>
+      <stop offset="1" stop-color="#eaf8ff"/>
+    </linearGradient>
+    <linearGradient id="drink" x1="24" x2="42" y1="18" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff8bb2"/>
+      <stop offset="1" stop-color="#ffc86e"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="none" stroke="#ff7ba5" stroke-opacity=".55" stroke-width="2"/>
+  <circle cx="48" cy="17" r="7" fill="#8edbff" fill-opacity=".65"/>
+  <circle cx="14" cy="47" r="6" fill="#a7efd0" fill-opacity=".65"/>
+  <path d="M18 14h30L36 31v13h9v5H21v-5h9V31L18 14Z" fill="#4f3342"/>
+  <path d="M23 18h20l-8 10h-4l-8-10Z" fill="url(#drink)"/>
+  <path d="M37 23l12-7" fill="none" stroke="#4f3342" stroke-linecap="round" stroke-width="3"/>
+  <path d="M46 15c3 3 4 7 1 10-4-1-7-5-6-10 2-1 4-1 5 0Z" fill="#a7efd0"/>
+  <path d="M21 44h24" stroke="#ff7ba5" stroke-linecap="round" stroke-width="3"/>
+  <circle cx="48" cy="47" r="3" fill="#ff7ba5"/>
 </svg>

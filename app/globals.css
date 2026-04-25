@@ -1221,13 +1221,7 @@ select:focus-visible {
   font-weight: 900;
 }
 
-.grade-compare__columns {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-
-.grade-compare__column {
+.grade-compare__list {
   display: flex;
   min-width: 0;
   flex-direction: column;
@@ -1238,22 +1232,9 @@ select:focus-visible {
   background: rgba(255, 255, 255, 0.84);
 }
 
-.grade-compare__column--answer {
-  background: rgba(245, 255, 250, 0.92);
-}
-
-.grade-compare__column > p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
 .grade-compare__row {
   display: grid;
-  grid-template-columns: 56px minmax(64px, 0.34fr) minmax(0, 1fr);
+  grid-template-columns: 56px minmax(64px, 0.28fr) minmax(0, 1fr);
   gap: 10px;
   align-items: center;
   min-height: 70px;
@@ -1293,7 +1274,14 @@ select:focus-visible {
   white-space: nowrap;
 }
 
-.grade-compare__row strong {
+.grade-compare__row-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.grade-compare__row-body strong {
   overflow: hidden;
   color: var(--text);
   font-size: clamp(0.95rem, 1.35vw, 1.1rem);
@@ -1302,8 +1290,25 @@ select:focus-visible {
   white-space: nowrap;
 }
 
-.grade-compare__column:not(.grade-compare__column--answer) .grade-compare__row.is-bad strong {
+.grade-compare__row.is-bad .grade-compare__row-body strong {
   color: var(--accent-warm);
+}
+
+.grade-compare__result {
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  color: var(--text-strong);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.grade-compare__result.is-ok {
+  color: var(--success);
 }
 
 .mixing-glass-media {
@@ -2250,11 +2255,7 @@ select:focus-visible {
     padding: 12px;
   }
 
-  .grade-compare__columns {
-    gap: 8px;
-  }
-
-  .grade-compare__column {
+  .grade-compare__list {
     padding: 8px;
   }
 
@@ -2274,7 +2275,8 @@ select:focus-visible {
     white-space: normal;
   }
 
-  .grade-compare__row strong {
+  .grade-compare__row-body strong,
+  .grade-compare__result {
     white-space: normal;
   }
 

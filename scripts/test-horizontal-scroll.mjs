@@ -187,6 +187,27 @@ async function runHorizontalScrollChecks(page) {
   await firstSpiritsCard.click();
   await quantityDock.waitFor({ state: "visible" });
   await quantityDock.getByRole("button", { name: "40ml" }).click();
+  await page.getByRole("button", { name: "採点" }).click();
+  await page.locator(".grade-compare").waitFor({ state: "visible" });
+  assert.equal(await page.locator(".grade-compare__columns").count(), 0, "採点結果が2カラム表示のまま");
+  assert.equal(await page.locator(".grade-compare__list").count(), 1, "採点結果が1つのリストになっていない");
+  assert.ok(
+    (await page.locator(".grade-compare__row").count()) > 0,
+    "採点結果の行が表示されていない"
+  );
+  assert.equal(
+    await page.locator(".mixing-glass-zone .grade-compare").count(),
+    0,
+    "採点結果がテーブル内に表示されている"
+  );
+  assert.ok(
+    await page.evaluate(() => {
+      const actions = document.querySelector(".action-row")?.getBoundingClientRect();
+      const grade = document.querySelector(".grade-compare")?.getBoundingClientRect();
+      return !!actions && !!grade && grade.top >= actions.bottom;
+    }),
+    "採点結果がアクションボタン群の下に表示されていない"
+  );
 
   const filledBefore = await filledSlotCount(page);
   await spiritsRow.evaluate((row) => row.scrollTo({ left: 320, behavior: "auto" }));
