@@ -2207,24 +2207,24 @@ export default function CocktailStudyApp() {
                     <div>
                       <p className="mini-title">左列</p>
                       <ul>
-                        {page.columns[0].map((line) => (
-                          <li key={line}>{line}</li>
+                        {page.columns[0].map((line, index) => (
+                          <li key={`${page.title}-left-${index}-${line}`}>{line}</li>
                         ))}
                       </ul>
                     </div>
                     <div>
                       <p className="mini-title">右列</p>
                       <ul>
-                        {page.columns[1].map((line) => (
-                          <li key={line}>{line}</li>
+                        {page.columns[1].map((line, index) => (
+                          <li key={`${page.title}-right-${index}-${line}`}>{line}</li>
                         ))}
                       </ul>
                     </div>
                   </div>
                 ) : (
                   <ul className="detail-list">
-                    {page.lines.map((line) => (
-                      <li key={line}>{line}</li>
+                    {page.lines.map((line, index) => (
+                      <li key={`${page.title}-${index}-${line}`}>{line}</li>
                     ))}
                   </ul>
                 )}

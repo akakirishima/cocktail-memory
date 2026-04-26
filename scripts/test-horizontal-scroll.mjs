@@ -13,6 +13,11 @@ const catalog = JSON.parse(
   readFileSync(new URL("../data/catalog.json", import.meta.url), "utf8")
 );
 const recipeByName = new Map(catalog.recipes.map((recipe) => [recipe.name, recipe]));
+const recipesForBrowser = catalog.recipes.map((recipe) => ({
+  name: recipe.name,
+  base: recipe.base,
+  sources: recipe.sources,
+}));
 
 async function ensureServerIsReachable(url) {
   try {
@@ -65,12 +70,54 @@ async function readPersistedState(page) {
   }, STORAGE_KEY);
 }
 
-async function readReadyBaseQuizQuestionName(page) {
-  await page.waitForFunction(() => {
+async function readReadyBaseQuizQuestionName(page, expectedBase = "") {
+  await page.waitForFunction(({ recipes, base }) => {
     const title = document.querySelector(".base-quiz__header h2")?.textContent?.trim() || "";
-    return !!title && title !== "問題を準備中";
-  });
+    if (!title || title === "問題を準備中") {
+      return false;
+    }
+    if (!base) {
+      return true;
+    }
+    const recipe = recipes.find((item) => item.name === title);
+    return recipe?.base === base;
+  }, { recipes: recipesForBrowser, base: expectedBase });
   return (await page.locator(".base-quiz__header h2").textContent() || "").trim();
+}
+
+async function assertNoDocumentOverflow(page) {
+  assert.ok(
+    await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 2),
+    "ページ全体に意図しない横はみ出しがある"
+  );
+}
+
+async function runAppShellChecks(page) {
+  const favicon = await page.evaluate(async () => {
+    const response = await fetch("/favicon.svg", { cache: "no-store" });
+    return {
+      ok: response.ok,
+      contentType: response.headers.get("content-type") || "",
+      body: await response.text(),
+    };
+  });
+  assert.ok(favicon.ok, "favicon.svg を取得できない");
+  assert.match(favicon.contentType, /image\/svg\+xml|text\/plain|application\/octet-stream/);
+  assert.match(favicon.body, /カクテル暗記アプリ/);
+  assert.match(favicon.body, /ff7ba5/i);
+
+  const scopeLabels = await page.locator(".hero__scope .filter-chip").allInnerTexts();
+  assert.deepEqual(
+    scopeLabels.map((text) => text.trim()),
+    ["全部", "ジン", "ウォッカ", "ラム", "ウイスキー", "テキーラ", "ワイン", "リキュール"],
+    "上部のお酒タグの表示が想定と違う"
+  );
+  assert.equal(
+    await page.locator(".hero__scope .filter-chip", { hasText: "全部" }).getAttribute("aria-pressed"),
+    "true",
+    "初期状態で全部タグが選択されていない"
+  );
+  await assertNoDocumentOverflow(page);
 }
 
 async function runHorizontalScrollChecks(page) {
@@ -195,6 +242,10 @@ async function runHorizontalScrollChecks(page) {
     (await page.locator(".grade-compare__row").count()) > 0,
     "採点結果の行が表示されていない"
   );
+  assert.ok(
+    (await page.locator(".grade-compare__result", { hasText: /OK|正解/ }).count()) > 0,
+    "採点結果の行内にOKまたは正解表示がない"
+  );
   assert.equal(
     await page.locator(".mixing-glass-zone .grade-compare").count(),
     0,
@@ -229,6 +280,59 @@ async function runHorizontalScrollChecks(page) {
   };
 }
 
+async function runLibraryChecks(page) {
+  await page.getByRole("button", { name: "一覧" }).click();
+  await page.locator(".recipe-grid").waitFor({ state: "visible" });
+
+  const libraryBaseSelect = page
+    .locator(".field--select")
+    .filter({ has: page.locator(".field__label", { hasText: "ベース" }) })
+    .locator("select");
+  await libraryBaseSelect.selectOption("ジンベース");
+  await page.waitForFunction(() => {
+    const cards = Array.from(document.querySelectorAll(".recipe-card"));
+    return cards.length > 0 && cards.every((card) => {
+      const base = card.querySelector(".badge-row .badge")?.textContent?.trim();
+      return base === "ジンベース";
+    });
+  });
+
+  const persistedAfterLibraryFilter = await readPersistedState(page);
+  assert.equal(
+    persistedAfterLibraryFilter?.baseFilter,
+    "ジンベース",
+    "一覧タブのベースフィルタが保存されていない"
+  );
+  assert.equal(
+    persistedAfterLibraryFilter?.practiceBaseFilter,
+    "all",
+    "一覧タブのベースフィルタが練習用フィルタを汚染している"
+  );
+
+  await page.getByLabel("検索").fill("ジントニック");
+  await page.waitForFunction(() => {
+    const titles = Array.from(document.querySelectorAll(".recipe-card h3")).map((node) =>
+      node.textContent?.trim() || ""
+    );
+    return titles.length === 1 && titles[0] === "ジントニック";
+  });
+
+  await page.getByRole("button", { name: "練習に戻して選ぶ" }).click();
+  await page.locator(".challenge-card__copy h2", { hasText: "ジントニック" }).waitFor({ state: "visible" });
+
+  const ginTonicId = recipeByName.get("ジントニック")?.id;
+  assert.ok(ginTonicId, "テスト対象のジントニックがカタログに存在しない");
+  await page.waitForFunction(
+    ({ key, recipeId }) => {
+      const raw = window.localStorage.getItem(key);
+      if (!raw) return false;
+      return JSON.parse(raw).currentRecipeId === recipeId;
+    },
+    { key: STORAGE_KEY, recipeId: ginTonicId }
+  );
+  await assertNoDocumentOverflow(page);
+}
+
 async function runBaseQuizChecks(page) {
   const persistedBefore = await readPersistedState(page);
   const practiceAttemptsBefore = persistedBefore?.stats?.attempts || 0;
@@ -236,9 +340,13 @@ async function runBaseQuizChecks(page) {
   await page.getByRole("button", { name: "種類当て" }).click();
   await page.locator(".base-quiz").waitFor({ state: "visible" });
 
-  const firstQuestionName = await readReadyBaseQuizQuestionName(page);
+  const baseFilter = page.locator(".hero__scope .chip-row--base-filter").first();
+  await baseFilter.getByRole("button", { name: "ラム" }).click();
+
+  const firstQuestionName = await readReadyBaseQuizQuestionName(page, "ラムベース");
   const firstRecipe = recipeByName.get(firstQuestionName);
   assert.ok(firstRecipe, `種類当て: レシピを特定できません (${firstQuestionName})`);
+  assert.equal(firstRecipe.base, "ラムベース", "種類当てに上部のお酒タグが反映されていない");
 
   const firstChoices = await page.locator(".base-quiz__choice").allInnerTexts();
   assert.equal(firstChoices.length, 4, "種類当て: 4択になっていない");
@@ -290,6 +398,7 @@ async function runBaseQuizChecks(page) {
     "種類当て: タイムアップ表示が出ない"
   );
   await page.getByRole("button", { name: "次の問題" }).click();
+  await baseFilter.getByRole("button", { name: "全部" }).click();
 
   await ensureChipState(page, "メイン", false);
   await ensureChipState(page, "メニュー", false);
@@ -319,11 +428,23 @@ async function run() {
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: VIEWPORT });
+  const runtimeErrors = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      runtimeErrors.push(message.text());
+    }
+  });
+  page.on("pageerror", (error) => {
+    runtimeErrors.push(error.message);
+  });
 
   try {
     await page.goto(BASE_URL, { waitUntil: "domcontentloaded" });
+    await runAppShellChecks(page);
     const horizontalMetrics = await runHorizontalScrollChecks(page);
+    await runLibraryChecks(page);
     await runBaseQuizChecks(page);
+    assert.deepEqual(runtimeErrors, [], "ブラウザ実行時エラーが発生している");
 
     console.log("UI regression tests passed.");
     console.log(
